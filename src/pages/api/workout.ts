@@ -63,11 +63,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             pt: ['segunda-feira', 'terca-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sabado', 'domingo']
         };
 
-        // Limit days to the requested number, but at least 2 and at most 7
+        // Ensure days per week is between 2 and 7
         const numDays = Math.min(Math.max(2, daysPerWeek), 7);
-        const selectedWeekdays = language === 'pt' 
-            ? weekdays.pt.slice(0, numDays)
-            : weekdays.en.slice(0, numDays);
+        
+        // Distribute workout days evenly throughout the week
+        const weekLength = 7;
+        const step = weekLength / numDays;
+        const workoutIndices = Array.from({ length: numDays }, (_, i) => 
+            Math.floor(i * step)
+        );
+        
+        // Get the corresponding weekdays in the correct language
+        const weekdaysList = language === 'pt' ? weekdays.pt : weekdays.en;
+        const selectedWeekdays = workoutIndices.map(index => weekdaysList[index]);
+        const restDays = weekdaysList.filter(day => !selectedWeekdays.includes(day));
 
         // Build the prompt with user preferences
         const languagePrompt = language === 'pt' 
@@ -121,30 +130,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 : `Additional notes: ${additionalNotes}.`
             : '';
 
-        // Generate a workout for each selected day of the week
-        const workoutPlan: Record<string, any> = {};
-        for (const day of selectedWeekdays) {
-            // We'll let the AI generate the actual workout based on the detailed prompt
-            // This is just a fallback in case the AI doesn't return a valid response
-            workoutPlan[day] = [
-                {
-                    name: language === 'pt' ? 'Agachamento' : 'Squat',
-                    description: language === 'pt' 
-                        ? '3 séries de 12 repetições. Mantenha as costas retas e os joelhos alinhados com os pés.' 
-                        : '3 sets of 12 reps. Keep your back straight and knees aligned with your feet.',
-                    image: 'https://example.com/squat.jpg'
-                },
-                {
-                    name: language === 'pt' ? 'Flexão' : 'Push-up',
-                    description: language === 'pt'
-                        ? '3 séries de 10 repetições. Mantenha o corpo reto e desça até o peito quase tocar o chão.'
-                        : '3 sets of 10 reps. Keep your body straight and lower until your chest almost touches the ground.',
-                    image: 'https://example.com/pushup.jpg'
-                }
-            ];
-        }
-
-        const prompt = `Generate a personalized workout plan based on the following preferences:
+        // Build the complete prompt
+        const prompt = `Generate a ${language === 'pt' ? 'plano de treino' : 'workout plan'} for ${numDays} ${language === 'pt' ? 'dias por semana' : 'days per week'}.
+        
         ${languagePrompt}
         ${levelPrompt}
         ${goalPrompt}
@@ -154,28 +142,49 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ${injuriesPrompt}
         ${notesPrompt}
 
-        The response should be a valid JSON object where each key is a weekday and the value is an array of exercises for that day.
-        Each exercise should have a name, description, and an image URL.
-        
-        For each exercise, provide detailed instructions including sets, reps, rest periods, and proper form tips.
-        The workout should be appropriate for the specified fitness level and goal.
-        
-        Example format (in English):
-        {
-            "monday": [
-                {
-                    "name": "Push-ups",
-                    "description": "3 sets of 12 reps with 60 seconds rest between sets. Keep your body in a straight line from head to heels, engage your core, and lower your chest to the floor while keeping your elbows at a 45-degree angle from your body.",
-                    "image": "https://example.com/pushups.jpg"
-                },
-                ...
-            ],
-            "tuesday": [...],
-            ...
+        ${language === 'pt' 
+            ? 'Dias de treino: ' + selectedWeekdays.join(', ') + '\nDias de descanso: ' + restDays.join(', ')
+            : 'Workout days: ' + selectedWeekdays.join(', ') + '\nRest days: ' + restDays.join(', ')
         }
-        
-        The image URLs should be direct links to relevant exercise images.
-        Make sure the workout is balanced and targets all major muscle groups throughout the week.`;
+
+        ${language === 'pt'
+            ? 'A resposta deve ser um objeto JSON válido onde cada chave é um dia da semana e o valor é uma matriz de exercícios para esse dia ou uma mensagem de dia de descanso.\n            \nPara dias de treino, inclua uma matriz de exercícios onde cada exercício tem um nome e descrição.\nPara dias de descanso, inclua uma mensagem de dia de descanso.\n\nPara cada exercício, forneça instruções detalhadas, incluindo séries, repetições, períodos de descanso e dicas de forma adequada.\nO treino deve ser apropriado para o nível de condicionamento físico e objetivo especificados.'
+            : 'The response should be a valid JSON object where each key is a weekday and the value is either an array of exercises for that day or a rest day message.\n            \nFor workout days, include an array of exercises where each exercise has a name and description.\nFor rest days, include a rest day message.\n\nFor each exercise, provide detailed instructions including sets, reps, rest periods, and proper form tips.\nThe workout should be appropriate for the specified fitness level and goal.'
+        }
+
+        ${language === 'pt'
+            ? 'Exemplo de formato:'
+            : 'Example format:'
+        }
+        {
+            "${language === 'pt' ? 'segunda' : 'monday'}": [
+                {
+                    "name": "${language === 'pt' ? 'Agachamento' : 'Squat'}",
+                    "description": "${language === 'pt' 
+                        ? '3 séries de 12 repetições com 60 segundos de descanso entre as séries. Mantenha as costas retas e desça até as coxas ficarem paralelas ao chão.'
+                        : '3 sets of 12 reps with 60 seconds rest between sets. Keep your back straight and lower until your thighs are parallel to the ground.'
+                    }"
+                },
+                {
+                    "name": "${language === 'pt' ? 'Flexão' : 'Push-up'}",
+                    "description": "${language === 'pt'
+                        ? '3 séries de 12 repetições com 60 segundos de descanso entre as séries. Mantenha o corpo em linha reta da cabeça aos calcanhares, contraia o abdômen e desça o peito em direção ao chão, mantendo os cotovelos em um ângulo de 45 graus em relação ao corpo.'
+                        : '3 sets of 12 reps with 60 seconds rest between sets. Keep your body in a straight line from head to heels, engage your core, and lower your chest to the floor while keeping your elbows at a 45-degree angle from your body.'
+                    }"
+                }
+            ],
+            "${language === 'pt' ? 'terca' : 'tuesday'}": "${language === 'pt' 
+                ? 'Dia de descanso - Permita que seus músculos se recuperem' 
+                : 'Rest day - Allow your muscles to recover'}",
+            "${language === 'pt' ? 'quarta' : 'wednesday'}": [
+                // Mais exercícios...
+            ]
+        }
+
+        ${language === 'pt'
+            ? 'Certifique-se de que o treino seja equilibrado e trabalhe todos os principais grupos musculares ao longo da semana.'
+            : 'Make sure the workout is balanced and targets all major muscle groups throughout the week.'
+        }`;
 
         const urlGemini = `${API_URL}?key=${API_KEY}`;
 
@@ -209,7 +218,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     .trim();
 
                 const geminiResponse = JSON.parse(geminiResponseText);
-                return res.status(200).json(geminiResponse);
+                // Ensure the response has the expected structure
+                const responseData = {
+                    workout: geminiResponse.workout || geminiResponse
+                };
+                console.log('Sending response:', responseData);
+                return res.status(200).json(responseData);
             } catch (parseError) {
                 console.error('Error parsing Gemini response:', parseError);
                 console.error('Raw response:', geminiResponseText);

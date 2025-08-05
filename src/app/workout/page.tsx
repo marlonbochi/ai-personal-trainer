@@ -1,31 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
 import { Language } from '@/lib/i18n/config';
-
-interface WorkoutPreferences {
-    fitnessLevel: string;
-    goal: string;
-    duration: string;
-    daysPerWeek: number;
-    availableEquipment: string[];
-    specificFocusAreas: string[];
-    injuries: string;
-    additionalNotes: string;
-}
-
-interface WorkoutResponse {
-	workout: {
-		[day: string]: {
-		name: string;
-		description: string;
-		image: string;
-		}[];
-	};
-}
 
 export default function Workout() {
     const router = useRouter();
@@ -33,20 +11,54 @@ export default function Workout() {
     const [workout, setWorkout] = useState<any>(null);
     const [loading, setLoading] = useState(false);
 
-    // Load workout from localStorage on component mount
-    useEffect(() => {
+    // Function to load workout from localStorage
+    const loadWorkout = () => {
+        // First try to get from generatedWorkout, then fall back to savedWorkout
+        const generatedWorkout = localStorage.getItem('generatedWorkout');
         const savedWorkout = localStorage.getItem('savedWorkout');
-        if (savedWorkout) {
-            setWorkout(JSON.parse(savedWorkout));
+        
+        const workoutToUse = generatedWorkout || savedWorkout;
+        
+        if (workoutToUse) {
+            try {
+                const parsedWorkout = JSON.parse(workoutToUse);
+                setWorkout(parsedWorkout);
+                // Ensure it's saved to both keys for consistency
+                localStorage.setItem('savedWorkout', workoutToUse);
+                if (generatedWorkout) {
+                    localStorage.setItem('generatedWorkout', workoutToUse);
+                }
+                return true;
+            } catch (error) {
+                console.error('Error parsing workout data:', error);
+            }
         }
-    }, []);
+        return false;
+    };
 
-    // Save workout to localStorage whenever it changes
+    // Track if component is mounted to prevent hydration issues
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Load workout on component mount
     useEffect(() => {
-        if (workout) {
-            localStorage.setItem('savedWorkout', JSON.stringify(workout));
+        setIsMounted(true);
+        const hasWorkout = loadWorkout();
+        if (!hasWorkout) {
+            router.push('/generate-workout');
         }
-    }, [workout]);
+    }, [router]);
+
+    // Listen for storage events to detect changes from other tabs/windows
+    useEffect(() => {
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'generatedWorkout' || e.key === 'savedWorkout') {
+                loadWorkout();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     const getWeekdayName = (day: string): string => {
         const weekdays = {
@@ -55,53 +67,21 @@ export default function Workout() {
             'wednesday': language === 'pt' ? 'quarta-feira' : 'wednesday',
             'thursday': language === 'pt' ? 'quinta-feira' : 'thursday',
             'friday': language === 'pt' ? 'sexta-feira' : 'friday',
+            'saturday': language === 'pt' ? 'sábado' : 'saturday',
+            'sunday': language === 'pt' ? 'domingo' : 'sunday',
             'segunda-feira': language === 'pt' ? 'segunda-feira' : 'monday',
             'terca-feira': language === 'pt' ? 'terca-feira' : 'tuesday',
             'quarta-feira': language === 'pt' ? 'quarta-feira' : 'wednesday',
             'quinta-feira': language === 'pt' ? 'quinta-feira' : 'thursday',
-            'sexta-feira': language === 'pt' ? 'sexta-feira' : 'friday'
+            'sexta-feira': language === 'pt' ? 'sexta-feira' : 'friday',
+            'sabado': language === 'pt' ? 'sábado' : 'saturday',
+            'domingo': language === 'pt' ? 'domingo' : 'sunday'
         };
         return weekdays[day.toLowerCase() as keyof typeof weekdays] || day;
     };
 
-    const handleGenerateWorkout = async () => {
-        // Redirect to the form page to collect preferences
+    const handleGenerateWorkout = () => {
         router.push('/generate-workout');
-    };
-
-    useEffect(() => {
-        // Check for saved preferences and fetch workout if they exist
-        const savedWorkout = localStorage.getItem('savedWorkout');
-        const savedPreferences = localStorage.getItem('workoutPreferences');
-        
-        if (savedWorkout) {
-            setWorkout(JSON.parse(savedWorkout));
-        } else if (savedPreferences && !workout) {
-            // If we have preferences but no workout, fetch one
-            fetchWorkout(JSON.parse(savedPreferences));
-        }
-    }, []);
-
-    const fetchWorkout = async (preferences: WorkoutPreferences) => {
-        setLoading(true);
-        try {
-            const result = await axios.post<WorkoutResponse>('/api/workout', {
-                language: language,
-                fitnessLevel: preferences.fitnessLevel,
-                goal: preferences.goal,
-                duration: preferences.duration,
-                daysPerWeek: preferences.daysPerWeek,
-                availableEquipment: preferences.availableEquipment,
-                specificFocusAreas: preferences.specificFocusAreas,
-                injuries: preferences.injuries,
-                additionalNotes: preferences.additionalNotes
-            });
-            setWorkout(result.data.workout);
-        } catch (error) {
-            console.error('Error calling API:', error);
-        } finally {
-            setLoading(false);
-        }
     };
 
     const [openDay, setOpenDay] = useState<string | null>(null);
@@ -116,17 +96,12 @@ export default function Workout() {
                 <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
                     {t('workout.title')}
                 </h1>	
-                <div className="w-full mb-8">
-                    <button 
-                        onClick={handleGenerateWorkout} 
-                        disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {loading ? t('workout.generating') : t('workout.generateButton')}
-                    </button>
-                </div>
                 
-                {workout && (
+                {!isMounted ? (
+                    <div className="w-full text-center py-10">
+                        <p className="text-gray-600">{t('workout.generating')}</p>
+                    </div>
+                ) : workout ? (
                     <div className="w-full space-y-4">
                         {Object.entries(workout).map(([day, exercises], index) => {
                             const displayDay = getWeekdayName(day);
@@ -135,6 +110,7 @@ export default function Workout() {
                                     <button 
                                         onClick={() => toggleDay(day)}
                                         className="w-full px-6 py-4 text-left font-semibold text-lg flex justify-between items-center bg-gray-100 hover:bg-gray-200 transition-colors"
+                                        aria-expanded={openDay === day}
                                     >
                                         <span className="capitalize">{displayDay}</span>
                                         {openDay === day ? (
@@ -146,28 +122,45 @@ export default function Workout() {
                                     
                                     {openDay === day && (
                                         <div className="p-6">
-                                            {Array.isArray(exercises) && exercises.map((exercise: any, exIndex: number) => (
-                                                <div key={exIndex} className="mb-6 last:mb-0">
-                                                    <h3 className="text-xl font-semibold text-gray-800">{exercise.name}</h3>
-                                                    <p className="text-gray-600 mt-2">{exercise.description}</p>
-                                                    {exercise.image && (
-                                                        <div className="mt-3">
-                                                            <img 
-                                                                src={exercise.image} 
-                                                                alt={exercise.name}
-                                                                className="max-w-full h-auto rounded-lg shadow-sm border border-gray-200"
-                                                            />
+                                            {Array.isArray(exercises) ? (
+                                                exercises.map((exercise: any, exIndex: number) => (
+                                                    exercise && exercise.name ? (
+                                                        <div key={`${day}-${exIndex}`} className="mb-6 last:mb-0">
+                                                            <h3 className="text-xl font-semibold text-gray-800">{exercise.name}</h3>
+                                                            {exercise.description && (
+                                                                <p className="text-gray-600 mt-2">{exercise.description}</p>
+                                                            )}
                                                         </div>
-                                                    )}
-                                                </div>
-                                            ))}
+                                                    ) : null
+                                                ))
+                                            ) : typeof exercises === 'string' ? (
+                                                <p className="text-gray-600 mt-2">{exercises}</p>
+                                            ) : null}
                                         </div>
                                     )}
                                 </div>
                             );
                         })}
                     </div>
+                ) : !loading && (
+                    <div className="text-center py-10">
+                        <p className="text-gray-600">
+                            {language === 'pt' 
+                                ? 'Nenhum treino encontrado. Gere um novo treino para começar.'
+                                : 'No workout found. Generate a new workout to get started.'}
+                        </p>
+                    </div>
                 )}
+				
+                <div className="w-full mt-8 mb-8">
+                    <button 
+                        onClick={handleGenerateWorkout} 
+                        disabled={loading}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {loading ? t('workout.generating') : t('workout.generateButton')}
+                    </button>
+                </div>
             </div>
         </div>
     );

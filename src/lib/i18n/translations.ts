@@ -18,6 +18,7 @@ export type TranslationKey =
   | 'workout.additionalNotes'
   | 'workout.additionalNotesPlaceholder'
   | 'workout.generatePlan'
+  | 'workout.cancelButton'
   | 'workout.days'
   | 'workout.levels.beginner'
   | 'workout.levels.intermediate'
@@ -59,7 +60,8 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     'workout.injuriesPlaceholder': 'List any injuries or physical limitations',
     'workout.additionalNotes': 'Additional Notes',
     'workout.additionalNotesPlaceholder': 'Any other preferences or requirements',
-    'workout.generatePlan': 'Generate My Workout Plan',
+    'workout.generatePlan': 'Generate',
+    'workout.cancelButton': 'Cancel',
     'workout.days': 'days',
     'workout.levels.beginner': 'Beginner',
     'workout.levels.intermediate': 'Intermediate',
@@ -100,7 +102,8 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     'workout.injuriesPlaceholder': 'Liste quaisquer lesões ou limitações físicas',
     'workout.additionalNotes': 'Observações Adicionais',
     'workout.additionalNotesPlaceholder': 'Quaisquer outras preferências ou requisitos',
-    'workout.generatePlan': 'Gerar Meu Plano de Treino',
+    'workout.generatePlan': 'Gerar',
+    'workout.cancelButton': 'Cancelar',
     'workout.days': 'dias',
     'workout.levels.beginner': 'Iniciante',
     'workout.levels.intermediate': 'Intermediário',

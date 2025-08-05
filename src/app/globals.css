@@ -1,3 +1,120 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 255 255 255;
+    --foreground: 20 20 20;
+  }
+  
+  body {
+    background-color: rgb(var(--background));
+    color: rgb(var(--foreground));
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  /* Form elements */
+  input[type='text'],
+  input[type='number'],
+  select,
+  textarea {
+    @apply bg-background text-foreground border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500;
+  }
+
+  input[type='checkbox'],
+  input[type='radio'] {
+    @apply border-2 border-gray-400 dark:border-gray-500 bg-white dark:bg-gray-800 rounded;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    margin: 0 0.5rem 0 0;
+    vertical-align: middle;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  input[type='checkbox']:hover,
+  input[type='radio']:hover {
+    @apply border-blue-500 dark:border-blue-400;
+  }
+
+  input[type='checkbox']:checked,
+  input[type='radio']:checked {
+    @apply bg-blue-600 border-blue-600;
+  }
+
+  input[type='checkbox']:checked::after {
+    content: '';
+    position: absolute;
+    left: 0.25rem;
+    top: 0.05rem;
+    width: 0.25rem;
+    height: 0.5rem;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  input[type='radio'] {
+    border-radius: 50%;
+  }
+
+  input[type='radio']:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: white;
+  }
+}
+
+@layer utilities {
+  .bg-background {
+    @apply bg-white dark:bg-gray-900;
+  }
+  
+  .text-foreground {
+    @apply text-gray-900 dark:text-white;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgb(243 244 246);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgb(209 213 219);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(156 163 175);
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-track {
+  background-color: rgb(17 24 39);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgb(55 65 81);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(75 85 99);
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
 
@@ -22,6 +22,23 @@ export default function GenerateWorkoutPage() {
         injuries: '',
         additionalNotes: ''
     });
+
+    // Load saved form data from localStorage on component mount
+    useEffect(() => {
+        const savedData = localStorage.getItem('workoutPreferences');
+        if (savedData) {
+            try {
+                const parsedData = JSON.parse(savedData);
+                setFormData(prev => ({
+                    ...prev,
+                    ...parsedData
+                }));
+            } catch (error) {
+                console.error('Error parsing saved preferences:', error);
+            }
+        }
+    }, []);
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -50,10 +67,30 @@ export default function GenerateWorkoutPage() {
             // Save form data to localStorage
             localStorage.setItem('workoutPreferences', JSON.stringify(formData));
             
-            // Navigate to workout page which will use these preferences
+            // Call the workout API to generate the workout plan
+            const response = await fetch('/api/workout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to generate workout plan');
+            }
+
+            const workoutData = await response.json();
+            
+            // Save the generated workout data to localStorage
+            localStorage.setItem('generatedWorkout', JSON.stringify(workoutData.workout));
+            
+            // Navigate to workout page to display the generated plan
             router.push('/workout');
         } catch (error) {
-            console.error('Error saving preferences:', error);
+            console.error('Error generating workout plan:', error);
+            alert(error instanceof Error ? error.message : 'Failed to generate workout plan');
         } finally {
             setIsSubmitting(false);
         }
@@ -100,8 +137,8 @@ export default function GenerateWorkoutPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
-            <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+        <div className="min-h-screen py-8">
+            <div className="max-w-2xl mx-auto p-6">
                 <h1 className="text-2xl font-bold text-gray-800 mb-6">
                     {t('workout.customizePlan')}
                 </h1>
@@ -112,7 +149,7 @@ export default function GenerateWorkoutPage() {
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             {t('workout.fitnessLevel')}
                         </label>
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 gap-4">
                             {fitnessLevels.map(level => (
                                 <label key={level.value} className="flex items-center">
                                     <input
@@ -121,9 +158,9 @@ export default function GenerateWorkoutPage() {
                                         value={level.value}
                                         checked={formData.fitnessLevel === level.value}
                                         onChange={handleChange}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                        className="h-4 w-4"
                                     />
-                                    <span className="ml-2 text-gray-700">{level.label}</span>
+                                    <span className="ml-2">{level.label}</span>
                                 </label>
                             ))}
                         </div>
@@ -143,9 +180,9 @@ export default function GenerateWorkoutPage() {
                                         value={goal.value}
                                         checked={formData.goal === goal.value}
                                         onChange={handleChange}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                                        className="h-4 w-4"
                                     />
-                                    <span className="ml-2 text-gray-700">{goal.label}</span>
+                                    <span className="ml-2">{goal.label}</span>
                                 </label>
                             ))}
                         </div>
@@ -161,7 +198,7 @@ export default function GenerateWorkoutPage() {
                             name="duration"
                             value={formData.duration}
                             onChange={handleChange}
-                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base sm:text-sm"
                         >
                             {durations.map(duration => (
                                 <option key={duration.value} value={duration.value}>
@@ -181,7 +218,7 @@ export default function GenerateWorkoutPage() {
                             name="daysPerWeek"
                             value={formData.daysPerWeek}
                             onChange={handleChange}
-                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base sm:text-sm"
                         >
                             {[2, 3, 4, 5, 6, 7].map(days => (
                                 <option key={days} value={days}>
@@ -205,9 +242,9 @@ export default function GenerateWorkoutPage() {
                                         value={equipment.value}
                                         checked={formData.availableEquipment.includes(equipment.value)}
                                         onChange={handleCheckboxChange}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        className="h-4 w-4"
                                     />
-                                    <span className="ml-2 text-gray-700">{equipment.label}</span>
+                                    <span className="ml-2">{equipment.label}</span>
                                 </label>
                             ))}
                         </div>
@@ -220,16 +257,16 @@ export default function GenerateWorkoutPage() {
                         </label>
                         <div className="grid grid-cols-2 gap-2">
                             {focusAreas.map(area => (
-                                <label key={area.value} className="flex items-center">
+                                <label key={area.value} className="flex itsems-center">
                                     <input
                                         type="checkbox"
                                         name="specificFocusAreas"
                                         value={area.value}
                                         checked={formData.specificFocusAreas.includes(area.value)}
                                         onChange={handleCheckboxChange}
-                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        className="h-4 w-4"
                                     />
-                                    <span className="ml-2 text-gray-700">{area.label}</span>
+                                    <span className="ml-2">{area.label}</span>
                                 </label>
                             ))}
                         </div>
@@ -247,7 +284,7 @@ export default function GenerateWorkoutPage() {
                             value={formData.injuries}
                             onChange={handleChange}
                             placeholder={t('workout.injuriesPlaceholder')}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            className="mt-1 block w-full py-2 px-3 sm:text-sm"
                         />
                     </div>
 
@@ -263,16 +300,27 @@ export default function GenerateWorkoutPage() {
                             value={formData.additionalNotes}
                             onChange={handleChange}
                             placeholder={t('workout.additionalNotesPlaceholder')}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            className="mt-1 block w-full py-2 px-3 sm:text-sm"
                         />
                     </div>
 
-                    {/* Submit Button */}
-                    <div className="pt-4">
+                    {/* Buttons */}
+                    <div className="pt-4 flex space-x-4">
+                        <button
+                            type="button"
+                            onClick={() => router.push('/workout')}
+                            className="flex-1 py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                            {t('workout.cancelButton')}
+                        </button>
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-wait"
+                            className={`flex-1 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                                isSubmitting
+                                    ? 'bg-indigo-400 cursor-not-allowed'
+                                    : 'bg-indigo-600 hover:bg-indigo-700'
+                            }`}
                         >
                             {isSubmitting ? t('workout.generating') : t('workout.generatePlan')}
                         </button>
