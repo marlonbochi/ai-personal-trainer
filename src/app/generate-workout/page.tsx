@@ -10,7 +10,7 @@ type WorkoutDuration = '15_min' | '30_min' | '45_min' | '60_min';
 
 export default function GenerateWorkoutPage() {
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
     
     const [formData, setFormData] = useState({
         fitnessLevel: 'intermediate' as FitnessLevel,
@@ -73,7 +73,10 @@ export default function GenerateWorkoutPage() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    language, // Add current language to the request
+                }),
             });
 
             if (!response.ok) {
