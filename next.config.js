@@ -1,4 +1,13 @@
 /** @type {import('next').NextConfig} */
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development',
+  buildExcludes: [/middleware-manifest\.json$/],
+  // Add any other PWA configurations here
+});
+
 const nextConfig = {
   reactStrictMode: true,
   compiler: {
@@ -22,7 +31,7 @@ const nextConfig = {
   // Disable TypeScript type checking during build
   typescript: {
     ignoreBuildErrors: true,
-  },
+  }
 };
 
-module.exports = nextConfig;
+module.exports = withPWA(nextConfig);

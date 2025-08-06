@@ -1,7 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronDown, ChevronUp, Pencil } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
 import { Language } from '@/lib/i18n/config';
 
@@ -44,7 +45,9 @@ export default function Workout() {
         setIsMounted(true);
         const hasWorkout = loadWorkout();
         if (!hasWorkout) {
-            router.push('/generate-workout');
+            setLoading(false);
+        } else {
+            setLoading(false);
         }
     }, [router]);
 
@@ -80,9 +83,7 @@ export default function Workout() {
         return weekdays[day.toLowerCase() as keyof typeof weekdays] || day;
     };
 
-    const handleGenerateWorkout = () => {
-        router.push('/generate-workout');
-    };
+    // Removed handleGenerateWorkout as we're using a direct Link now
 
     const [openDay, setOpenDay] = useState<string | null>(null);
 
@@ -90,76 +91,85 @@ export default function Workout() {
         setOpenDay(openDay === day ? null : day);
     };
 
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            </div>
+        );
+    }
+
+    if (!workout) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                    {t('workout.noWorkout')}
+                </h2>
+                <p className="text-gray-600 mb-6">
+                    {t('workout.generatePrompt')}
+                </p>
+            </div>
+        );
+    }
+
     return (
-        <div className="min-h-screen bg-gray-50 py-8 flex flex-col items-center">
+        <div className="min-h-screen bg-gray-50 py-8 flex flex-col items-center relative">
+            {/* Floating Action Button */}
+            <Link 
+                href="/generate-workout"
+                className="fixed bottom-8 right-8 bg-indigo-600 text-white p-4 rounded-full shadow-lg hover:bg-indigo-700 transition-colors z-40 flex items-center justify-center"
+                title={t('nav.generateWorkout')}
+            >
+                <Pencil className="h-6 w-6" />
+            </Link>
+            
             <div className="w-full max-w-[1000px] px-4">
                 <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
                     {t('workout.title')}
                 </h1>	
                 
-                {!isMounted ? (
-                    <div className="w-full text-center py-10">
-                        <p className="text-gray-600">{t('workout.generating')}</p>
-                    </div>
-                ) : workout ? (
-                    <div className="w-full space-y-4">
-                        {Object.entries(workout).map(([day, exercises], index) => {
+                <div className="w-full space-y-4">
+                    {Object.entries(workout)
+                        // Filter out days that don't have an array of exercises
+                        .filter(([_, exercises]) => Array.isArray(exercises))
+                        .map(([day, exercises], index) => {
                             const displayDay = getWeekdayName(day);
                             return (
-                                <div key={day} className={`w-full bg-white rounded-lg shadow-md overflow-hidden ${index === 0 ? 'mt-5' : ''}`}>
-                                    <button 
-                                        onClick={() => toggleDay(day)}
-                                        className="w-full px-6 py-4 text-left font-semibold text-lg flex justify-between items-center bg-gray-100 hover:bg-gray-200 transition-colors"
-                                        aria-expanded={openDay === day}
-                                    >
-                                        <span className="capitalize">{displayDay}</span>
-                                        {openDay === day ? (
-                                            <ChevronUp className="w-5 h-5" />
-                                        ) : (
-                                            <ChevronDown className="w-5 h-5" />
-                                        )}
-                                    </button>
-                                    
-                                    {openDay === day && (
-                                        <div className="p-6">
-                                            {Array.isArray(exercises) ? (
-                                                exercises.map((exercise: any, exIndex: number) => (
-                                                    exercise && exercise.name ? (
-                                                        <div key={`${day}-${exIndex}`} className="mb-6 last:mb-0">
-                                                            <h3 className="text-xl font-semibold text-gray-800">{exercise.name}</h3>
-                                                            {exercise.description && (
-                                                                <p className="text-gray-600 mt-2">{exercise.description}</p>
-                                                            )}
-                                                        </div>
-                                                    ) : null
-                                                ))
-                                            ) : typeof exercises === 'string' ? (
-                                                <p className="text-gray-600 mt-2">{exercises}</p>
-                                            ) : null}
-                                        </div>
+                            <div key={day} className={`w-full bg-white rounded-lg shadow-md overflow-hidden ${index === 0 ? 'mt-5' : ''}`}>
+                                <button 
+                                    onClick={() => toggleDay(day)}
+                                    className="w-full px-6 py-4 text-left font-semibold text-lg flex justify-between items-center bg-gray-100 hover:bg-gray-200 transition-colors"
+                                    aria-expanded={openDay === day}
+                                >
+                                    <span className="capitalize">{displayDay}</span>
+                                    {openDay === day ? (
+                                        <ChevronUp className="w-5 h-5" />
+                                    ) : (
+                                        <ChevronDown className="w-5 h-5" />
                                     )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                ) : !loading && (
-                    <div className="text-center py-10">
-                        <p className="text-gray-600">
-                            {language === 'pt' 
-                                ? 'Nenhum treino encontrado. Gere um novo treino para começar.'
-                                : 'No workout found. Generate a new workout to get started.'}
-                        </p>
-                    </div>
-                )}
-				
-                <div className="w-full mt-8 mb-8">
-                    <button 
-                        onClick={handleGenerateWorkout} 
-                        disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {loading ? t('workout.generating') : t('workout.generateButton')}
-                    </button>
+                                </button>
+                                
+                                {openDay === day && (
+                                    <div className="p-6">
+                                        {Array.isArray(exercises) ? (
+                                            exercises.map((exercise: any, exIndex: number) => (
+                                                exercise && exercise.name ? (
+                                                    <div key={`${day}-${exIndex}`} className="mb-6 last:mb-0">
+                                                        <h3 className="text-xl font-semibold text-gray-800">{exercise.name}</h3>
+                                                        {exercise.description && (
+                                                            <p className="text-gray-600 mt-2">{exercise.description}</p>
+                                                        )}
+                                                    </div>
+                                                ) : null
+                                            ))
+                                        ) : typeof exercises === 'string' ? (
+                                            <p className="text-gray-600 mt-2">{exercises}</p>
+                                        ) : null}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>

@@ -7,6 +7,7 @@ import { useTranslation } from '@/lib/i18n/TranslationContext';
 type FitnessLevel = 'beginner' | 'intermediate' | 'advanced';
 type WorkoutGoal = 'weight_loss' | 'muscle_gain' | 'endurance' | 'strength';
 type WorkoutDuration = '15_min' | '30_min' | '45_min' | '60_min';
+type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
 
 export default function GenerateWorkoutPage() {
     const router = useRouter();
@@ -17,6 +18,7 @@ export default function GenerateWorkoutPage() {
         goal: 'muscle_gain' as WorkoutGoal,
         duration: '30_min' as WorkoutDuration,
         daysPerWeek: 3,
+        selectedDays: ['monday', 'wednesday', 'friday'] as DayOfWeek[],
         availableEquipment: [] as string[],
         specificFocusAreas: [] as string[],
         injuries: '',
@@ -51,12 +53,25 @@ export default function GenerateWorkoutPage() {
 
     const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: checked 
-                ? [...prev[name as keyof typeof prev] as string[], value]
-                : (prev[name as keyof typeof prev] as string[]).filter(item => item !== value)
-        }));
+        
+        if (name === 'selectedDays') {
+            setFormData(prev => ({
+                ...prev,
+                selectedDays: checked
+                    ? [...prev.selectedDays, value as DayOfWeek]
+                    : prev.selectedDays.filter(day => day !== value),
+                daysPerWeek: checked 
+                    ? prev.daysPerWeek + 1 
+                    : Math.max(1, prev.daysPerWeek - 1) // Ensure at least 1 day is selected
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: checked 
+                    ? [...prev[name as keyof typeof prev] as string[], value]
+                    : (prev[name as keyof typeof prev] as string[]).filter(item => item !== value)
+            }));
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -75,6 +90,8 @@ export default function GenerateWorkoutPage() {
                 },
                 body: JSON.stringify({
                     ...formData,
+                    daysPerWeek: formData.selectedDays.length, // Use the count of selected days
+                    selectedDays: formData.selectedDays,
                     language, // Add current language to the request
                 }),
             });
@@ -119,14 +136,9 @@ export default function GenerateWorkoutPage() {
         { value: '60_min', label: '60 min' }
     ];
 
-    const equipmentOptions = [
-        { value: 'dumbbells', label: t('workout.equipment.dumbbells') },
-        { value: 'barbell', label: t('workout.equipment.barbell') },
-        { value: 'kettlebells', label: t('workout.equipment.kettlebells') },
-        { value: 'resistance_bands', label: t('workout.equipment.resistanceBands') },
-        { value: 'yoga_mat', label: t('workout.equipment.yogaMat') },
-        { value: 'pull_up_bar', label: t('workout.equipment.pullUpBar') },
-        { value: 'none', label: t('workout.equipment.none') }
+    const workoutTypeOptions = [
+        { value: 'gym', label: t('workout.equipment.gym') },
+        { value: 'home', label: t('workout.equipment.homeWorkout') }
     ];
 
     const focusAreas = [
@@ -211,43 +223,58 @@ export default function GenerateWorkoutPage() {
                         </select>
                     </div>
 
-                    {/* Days Per Week */}
+                    {/* Days of the Week */}
                     <div>
-                        <label htmlFor="daysPerWeek" className="block text-sm font-medium text-gray-700 mb-2">
-                            {t('workout.daysPerWeek')}
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            {t('workout.daysPerWeek')} ({formData.selectedDays.length} {t('workout.days').toLowerCase()})
                         </label>
-                        <select
-                            id="daysPerWeek"
-                            name="daysPerWeek"
-                            value={formData.daysPerWeek}
-                            onChange={handleChange}
-                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base sm:text-sm"
-                        >
-                            {[2, 3, 4, 5, 6, 7].map(days => (
-                                <option key={days} value={days}>
-                                    {days} {t('workout.days')}
-                                </option>
+                        <div className="grid grid-cols-2 gap-2">
+                            {[
+                                { value: 'monday', label: t('workout.daysOfWeek.monday') },
+                                { value: 'tuesday', label: t('workout.daysOfWeek.tuesday') },
+                                { value: 'wednesday', label: t('workout.daysOfWeek.wednesday') },
+                                { value: 'thursday', label: t('workout.daysOfWeek.thursday') },
+                                { value: 'friday', label: t('workout.daysOfWeek.friday') },
+                                { value: 'saturday', label: t('workout.daysOfWeek.saturday') },
+                                { value: 'sunday', label: t('workout.daysOfWeek.sunday') }
+                            ].map(day => (
+                                <label key={day.value} className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        name="selectedDays"
+                                        value={day.value}
+                                        checked={formData.selectedDays.includes(day.value as DayOfWeek)}
+                                        onChange={handleCheckboxChange}
+                                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                    />
+                                    <span className="ml-2">{day.label}</span>
+                                </label>
                             ))}
-                        </select>
+                        </div>
                     </div>
 
-                    {/* Available Equipment */}
+                    {/* Workout Type */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             {t('workout.availableEquipment')}
                         </label>
-                        <div className="grid grid-cols-2 gap-2">
-                            {equipmentOptions.map(equipment => (
-                                <label key={equipment.value} className="flex items-center">
+                        <div className="space-y-2">
+                            {workoutTypeOptions.map(option => (
+                                <label key={option.value} className="flex items-center">
                                     <input
-                                        type="checkbox"
-                                        name="availableEquipment"
-                                        value={equipment.value}
-                                        checked={formData.availableEquipment.includes(equipment.value)}
-                                        onChange={handleCheckboxChange}
-                                        className="h-4 w-4"
+                                        type="radio"
+                                        name="workoutType"
+                                        value={option.value}
+                                        checked={formData.availableEquipment[0] === option.value}
+                                        onChange={() => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                availableEquipment: [option.value]
+                                            }));
+                                        }}
+                                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
                                     />
-                                    <span className="ml-2">{equipment.label}</span>
+                                    <span className="ml-2">{option.label}</span>
                                 </label>
                             ))}
                         </div>

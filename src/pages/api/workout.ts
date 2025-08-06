@@ -37,6 +37,7 @@ interface WorkoutRequestBody {
     goal?: 'weight_loss' | 'muscle_gain' | 'endurance' | 'strength';
     duration?: '15_min' | '30_min' | '45_min' | '60_min';
     daysPerWeek?: number;
+    selectedDays?: string[];
     availableEquipment?: string[];
     specificFocusAreas?: string[];
     injuries?: string;
@@ -51,6 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             goal = 'muscle_gain',
             duration = '30_min',
             daysPerWeek = 3,
+            selectedDays: rawSelectedDays = ['monday', 'wednesday', 'friday'],
             availableEquipment = [],
             specificFocusAreas = [],
             injuries = '',
@@ -62,21 +64,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             en: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
             pt: ['segunda-feira', 'terca-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sabado', 'domingo']
         };
-
-        // Ensure days per week is between 2 and 7
-        const numDays = Math.min(Math.max(2, daysPerWeek), 7);
         
-        // Distribute workout days evenly throughout the week
-        const weekLength = 7;
-        const step = weekLength / numDays;
-        const workoutIndices = Array.from({ length: numDays }, (_, i) => 
-            Math.floor(i * step)
-        );
-        
-        // Get the corresponding weekdays in the correct language
+        // Get the weekdays list in the correct language
         const weekdaysList = language === 'pt' ? weekdays.pt : weekdays.en;
-        const selectedWeekdays = workoutIndices.map(index => weekdaysList[index]);
+        
+        // Map the selected days to the correct language if needed
+        const selectedWeekdays = rawSelectedDays.map(day => {
+            if (language === 'pt') {
+                // If PT, map from English day names to Portuguese if needed
+                const enIndex = weekdays.en.indexOf(day.toLowerCase());
+                return enIndex >= 0 ? weekdays.pt[enIndex] : day;
+            }
+            // If EN, ensure day is in English
+            const ptIndex = weekdays.pt.indexOf(day.toLowerCase());
+            return ptIndex >= 0 ? weekdays.en[ptIndex] : day;
+        });
+        
+        // Get the rest days (all days not in selectedWeekdays)
         const restDays = weekdaysList.filter(day => !selectedWeekdays.includes(day));
+        
+        // Ensure we have at least one workout day
+        if (selectedWeekdays.length === 0) {
+            selectedWeekdays.push(weekdaysList[0]); // Default to first day if none selected
+            restDays.splice(0, 1); // Remove the first day from rest days
+        }
 
         // Build the prompt with user preferences
         const languagePrompt = language === 'pt' 
@@ -131,7 +142,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             : '';
 
         // Build the complete prompt
-        const prompt = `Generate a ${language === 'pt' ? 'plano de treino' : 'workout plan'} for ${numDays} ${language === 'pt' ? 'dias por semana' : 'days per week'}.
+        const prompt = `Generate a ${language === 'pt' ? 'plano de treino' : 'workout plan'} for ${selectedWeekdays.length} ${language === 'pt' ? 'dias por semana' : 'days per week'}.
         
         ${languagePrompt}
         ${levelPrompt}

@@ -1,13 +1,32 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import Providers from "./providers";
-import ProvidersWrapper from "./ProvidersWrapper";
-import FontStyles from "./FontStyles";
+import ClientLayout from "./client-layout";
+import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "AI Personal Trainer",
   description: "Your personal AI workout assistant",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'AI Personal Trainer',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    siteName: 'AI Personal Trainer',
+    title: 'AI Personal Trainer',
+    description: 'Your personal AI workout assistant',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'AI Personal Trainer',
+    description: 'Your personal AI workout assistant',
+  },
 };
 
 export const viewport: Viewport = {
@@ -26,20 +45,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
-      <body className="min-h-screen bg-background font-sans antialiased">
-        <FontStyles />
-        <Providers>
-          <ProvidersWrapper>
-            {children}
-          </ProvidersWrapper>
-        </Providers>
-      </body>
-    </html>
-  );
+  return <ClientLayout>{children}</ClientLayout>;
 }

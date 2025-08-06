@@ -1,6 +1,14 @@
 import { Language } from './config';
 
-export type TranslationKey = 
+export type TranslationKey =
+  | 'app.name'
+  | 'nav.home'
+  | 'nav.generateWorkout'
+  | 'workout.noWorkout'
+  | 'workout.generatePrompt'
+  | 'language.english'
+  | 'language.portuguese'
+  | 'language.select' 
   | 'workout.title'
   | 'workout.generateButton'
   | 'workout.generating'
@@ -27,27 +35,60 @@ export type TranslationKey =
   | 'workout.goals.muscleGain'
   | 'workout.goals.endurance'
   | 'workout.goals.strength'
+  | 'workout.equipment.gym'
+  | 'workout.equipment.homeWorkout'
   | 'workout.equipment.dumbbells'
   | 'workout.equipment.barbell'
   | 'workout.equipment.kettlebells'
   | 'workout.equipment.resistanceBands'
   | 'workout.equipment.yogaMat'
   | 'workout.equipment.pullUpBar'
-  | 'workout.equipment.none'
   | 'workout.focusAreas.chest'
   | 'workout.focusAreas.back'
   | 'workout.focusAreas.legs'
   | 'workout.focusAreas.shoulders'
   | 'workout.focusAreas.arms'
   | 'workout.focusAreas.core'
-  | 'workout.focusAreas.cardio';
+  | 'workout.focusAreas.cardio'
+  | 'workout.daysOfWeek.monday'
+  | 'workout.daysOfWeek.tuesday'
+  | 'workout.daysOfWeek.wednesday'
+  | 'workout.daysOfWeek.thursday'
+  | 'workout.daysOfWeek.friday'
+  | 'workout.daysOfWeek.saturday'
+  | 'workout.daysOfWeek.sunday'
+  | 'pwa.installTitle'
+  | 'pwa.installDescription'
+  | 'pwa.installButton'
+  | 'pwa.notNowButton';
 
 const translations: Record<Language, Record<TranslationKey, string>> = {
   en: {
-    'workout.title': 'AI Workout Plan',
+    'app.name': 'AI Trainer',
+    'nav.home': 'My Workouts',
+    'nav.generateWorkout': 'New Workout',
+    'workout.noWorkout': 'No workout found',
+    'workout.generatePrompt': 'Generate a new workout plan to get started',
+    'language.english': 'English',
+    'language.portuguese': 'Portuguese',
+    'language.select': 'Select Language',
+    // Days of the week
+    'workout.daysOfWeek.monday': 'Monday',
+    'workout.daysOfWeek.tuesday': 'Tuesday',
+    'workout.daysOfWeek.wednesday': 'Wednesday',
+    'workout.daysOfWeek.thursday': 'Thursday',
+    'workout.daysOfWeek.friday': 'Friday',
+    'workout.daysOfWeek.saturday': 'Saturday',
+    'workout.daysOfWeek.sunday': 'Sunday',
+    
+    'workout.title': 'Workout Plan',
     'workout.tagline': 'Get your personalized workout plan based on your goals and preferences',
     'workout.getStarted': 'Get Started',
     'workout.generateButton': 'Generate Workout Plan',
+    'pwa.installTitle': 'Install App',
+    'pwa.installDescription': 'Add this app to your home screen for quick access',
+    'pwa.installButton': 'Install',
+    'pwa.notNowButton': 'Not now',
     'workout.generating': 'Generating...',
     'workout.customizePlan': 'Customize Your Workout Plan',
     'workout.fitnessLevel': 'Your Fitness Level',
@@ -70,13 +111,14 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     'workout.goals.muscleGain': 'Muscle Gain',
     'workout.goals.endurance': 'Endurance',
     'workout.goals.strength': 'Strength',
+    'workout.equipment.gym': 'Gym Equipment',
+    'workout.equipment.homeWorkout': 'Home Workout',
     'workout.equipment.dumbbells': 'Dumbbells',
     'workout.equipment.barbell': 'Barbell',
     'workout.equipment.kettlebells': 'Kettlebells',
     'workout.equipment.resistanceBands': 'Resistance Bands',
     'workout.equipment.yogaMat': 'Yoga Mat',
     'workout.equipment.pullUpBar': 'Pull-up Bar',
-    'workout.equipment.none': 'No Equipment',
     'workout.focusAreas.chest': 'Chest',
     'workout.focusAreas.back': 'Back',
     'workout.focusAreas.legs': 'Legs',
@@ -86,10 +128,31 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     'workout.focusAreas.cardio': 'Cardio',
   },
   pt: {
-    'workout.title': 'Plano de Treino AI',
+    'app.name': 'AI Trainer',
+    'nav.home': 'Meus Treinos',
+    'nav.generateWorkout': 'Novo Treino',
+    'workout.noWorkout': 'Nenhum treino encontrado',
+    'workout.generatePrompt': 'Gere um novo plano de treino para começar',
+    'language.english': 'Inglês',
+    'language.portuguese': 'Português',
+    'language.select': 'Selecionar Idioma',
+    // Days of the week
+    'workout.daysOfWeek.monday': 'Segunda-feira',
+    'workout.daysOfWeek.tuesday': 'Terça-feira',
+    'workout.daysOfWeek.wednesday': 'Quarta-feira',
+    'workout.daysOfWeek.thursday': 'Quinta-feira',
+    'workout.daysOfWeek.friday': 'Sexta-feira',
+    'workout.daysOfWeek.saturday': 'Sábado',
+    'workout.daysOfWeek.sunday': 'Domingo',
+    
+    'workout.title': 'Plano de Treino',
     'workout.tagline': 'Obtenha seu plano de treino personalizado com base em seus objetivos e preferências',
-    'workout.getStarted': 'Começar Agora',
+    'workout.getStarted': 'Começar',
     'workout.generateButton': 'Gerar Plano de Treino',
+    'pwa.installTitle': 'Instalar Aplicativo',
+    'pwa.installDescription': 'Adicione este aplicativo à tela inicial para acesso rápido',
+    'pwa.installButton': 'Instalar',
+    'pwa.notNowButton': 'Agora não',
     'workout.generating': 'Gerando...',
     'workout.customizePlan': 'Personalize Seu Plano de Treino',
     'workout.fitnessLevel': 'Seu Nível de Condicionamento',
@@ -112,13 +175,14 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     'workout.goals.muscleGain': 'Ganho de Massa Muscular',
     'workout.goals.endurance': 'Resistência',
     'workout.goals.strength': 'Força',
+    'workout.equipment.gym': 'Academia',
+    'workout.equipment.homeWorkout': 'Treino em Casa',
     'workout.equipment.dumbbells': 'Halteres',
     'workout.equipment.barbell': 'Barra',
     'workout.equipment.kettlebells': 'Kettlebells',
-    'workout.equipment.resistanceBands': 'Elásticos',
+    'workout.equipment.resistanceBands': 'Faixas de Resistência',
     'workout.equipment.yogaMat': 'Tapete de Yoga',
     'workout.equipment.pullUpBar': 'Barra Fixa',
-    'workout.equipment.none': 'Sem Equipamento',
     'workout.focusAreas.chest': 'Peito',
     'workout.focusAreas.back': 'Costas',
     'workout.focusAreas.legs': 'Pernas',
