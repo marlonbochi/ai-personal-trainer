@@ -1,8 +1,8 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
-import { useEffect, useState } from 'react';
 
 export default function Home() {
   const router = useRouter();
@@ -11,10 +11,10 @@ export default function Home() {
 
   useEffect(() => {
     // Check for saved workout in localStorage
-    const savedWorkout = localStorage.getItem('savedWorkout');
-    if (savedWorkout) {
+    const generatedWorkout = localStorage.getItem('generatedWorkout');
+    if (generatedWorkout) {
       try {
-        const parsedWorkout = JSON.parse(savedWorkout);
+        const parsedWorkout = JSON.parse(generatedWorkout);
         if (parsedWorkout && Object.keys(parsedWorkout).length > 0) {
           // Redirect to workout page if we have a valid saved workout
           router.push('/workout');

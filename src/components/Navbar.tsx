@@ -35,7 +35,7 @@ export default function Navbar() {
 
   const navItems = [
     { href: '/workout', label: t('nav.home'), icon: '🏋️' },
-    { href: '/generate-workout', label: t('nav.generateWorkout'), icon: '➕' },
+    // { href: '/generate-workout', label: t('nav.generateWorkout'), icon: '➕' },
   ];
 
   const isActive = (path: string) => {

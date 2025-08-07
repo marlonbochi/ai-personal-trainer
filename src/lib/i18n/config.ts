@@ -8,11 +8,22 @@ export const supportedLanguages: Language[] = ['en', 'pt'];
 export const getUserLanguage = (): Language => {
   if (typeof window === 'undefined') return defaultLanguage;
   
-  // Get browser language
-  const browserLanguage = navigator.language.split('-')[0];
+  // 1. Check for saved language in localStorage
+  const savedLanguage = localStorage.getItem('userLanguage');
+  if (savedLanguage && supportedLanguages.includes(savedLanguage as Language)) {
+    return savedLanguage as Language;
+  }
   
-  // Check if the browser language is supported
-  return supportedLanguages.includes(browserLanguage as Language) 
-    ? browserLanguage as Language 
+  // 2. Get browser language if no saved preference
+  const browserLanguage = navigator.language.split('-')[0];
+  const detectedLanguage = supportedLanguages.includes(browserLanguage as Language)
+    ? browserLanguage as Language
     : defaultLanguage;
+  
+  // Save the detected language for future use
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('userLanguage', detectedLanguage);
+  }
+  
+  return detectedLanguage;
 };

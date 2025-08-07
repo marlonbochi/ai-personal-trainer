@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import * as dotenv from 'dotenv';
+import { withOriginValidation } from '../../middleware/validateOrigin';
 
 dotenv.config();
 
@@ -42,9 +43,12 @@ interface WorkoutRequestBody {
     specificFocusAreas?: string[];
     injuries?: string;
     additionalNotes?: string;
+    age?: number;
+    gender?: 'male' | 'female';
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+// Main handler function
+async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === 'POST') {
         const { 
             language = 'en',
@@ -56,7 +60,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             availableEquipment = [],
             specificFocusAreas = [],
             injuries = '',
-            additionalNotes = ''
+            additionalNotes = '',
+            age = 30,
+            gender = 'male'
         } = req.body as WorkoutRequestBody;
         
         // Define weekdays in both languages
@@ -93,6 +99,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const languagePrompt = language === 'pt' 
             ? 'O nome e a descrição devem estar em português do Brasil. Use dias da semana em português (segunda-feira, terça-feira, etc.) e certifique-se de que todo o conteúdo esteja em português.'
             : 'The name and description should be in English. Use weekdays in English (Monday, Tuesday, etc.) and make sure all content is in English.';
+            
+        const ageGenderPrompt = language === 'pt'
+            ? `Esta pessoa tem ${age} anos e é do sexo ${gender === 'male' ? 'masculino' : 'feminino'}.`
+            : `This person is ${age} years old and ${gender === 'male' ? 'male' : 'female'}.`;
             
         const levelPrompt = language === 'pt'
             ? `Nível de condicionamento: ${{
@@ -145,6 +155,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const prompt = `Generate a ${language === 'pt' ? 'plano de treino' : 'workout plan'} for ${selectedWeekdays.length} ${language === 'pt' ? 'dias por semana' : 'days per week'}.
         
         ${languagePrompt}
+        ${ageGenderPrompt}
         ${levelPrompt}
         ${goalPrompt}
         ${durationPrompt}
@@ -230,9 +241,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                 const geminiResponse = JSON.parse(geminiResponseText);
                 // Ensure the response has the expected structure
-                const responseData = {
-                    workout: geminiResponse.workout || geminiResponse
-                };
+                const responseData = geminiResponse.workout || geminiResponse
+				
                 console.log('Sending response:', responseData);
                 return res.status(200).json(responseData);
             } catch (parseError) {
@@ -241,14 +251,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 throw new Error('Failed to parse Gemini API response');
             }
         } catch (error) {
-            console.error('Error in workout API:', error);
-            const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-            res.status(500).json({ 
-                error: 'Failed to generate workout',
-                details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
-            });
+            console.error('Error generating workout plan:', error);
+            res.status(500).json({ error: 'Failed to generate workout plan' });
         }
     } else {
         res.status(405).json({ error: 'Method not allowed' });
     }
 }
+
+// Export the handler with origin validation
+export default withOriginValidation(handler);

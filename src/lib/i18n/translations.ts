@@ -57,6 +57,10 @@ export type TranslationKey =
   | 'workout.daysOfWeek.friday'
   | 'workout.daysOfWeek.saturday'
   | 'workout.daysOfWeek.sunday'
+  | 'workout.age'
+  | 'workout.gender'
+  | 'workout.genderMale'
+  | 'workout.genderFemale'
   | 'pwa.installTitle'
   | 'pwa.installDescription'
   | 'pwa.installButton'
@@ -126,6 +130,10 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     'workout.focusAreas.arms': 'Arms',
     'workout.focusAreas.core': 'Core',
     'workout.focusAreas.cardio': 'Cardio',
+    'workout.age': 'Age',
+    'workout.gender': 'Gender',
+    'workout.genderMale': 'Male',
+    'workout.genderFemale': 'Female',
   },
   pt: {
     'app.name': 'AI Trainer',
@@ -190,6 +198,10 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     'workout.focusAreas.arms': 'Braços',
     'workout.focusAreas.core': 'Core/Abdômen',
     'workout.focusAreas.cardio': 'Cardio',
+    'workout.age': 'Idade',
+    'workout.gender': 'Gênero',
+    'workout.genderMale': 'Masculino',
+    'workout.genderFemale': 'Feminino',
   }
 };
 

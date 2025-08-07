@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 import Providers from "./providers";
 import ProvidersWrapper from "./ProvidersWrapper";
 import FontStyles from "./FontStyles";
@@ -12,6 +13,9 @@ type ClientLayoutProps = {
 };
 
 export default function ClientLayout({ children }: ClientLayoutProps) {
+  const pathname = usePathname();
+  const isHomePage = pathname === '/' || pathname === '/home';
+  
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -48,8 +52,8 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
         <FontStyles />
         <Providers>
           <ProvidersWrapper>
-            <Navbar />
-            <main className="flex-1">
+            {!isHomePage && <Navbar />}
+            <main className={`flex-1 ${isHomePage ? 'min-h-screen' : ''}`}>
               {children}
             </main>
             <PWAInstallWrapper />

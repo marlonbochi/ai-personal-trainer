@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp, Pencil } from 'lucide-react';
@@ -10,58 +10,59 @@ export default function Workout() {
     const router = useRouter();
     const { t, language } = useTranslation();
     const [workout, setWorkout] = useState<any>(null);
-    const [loading, setLoading] = useState(false);
-
-    // Function to load workout from localStorage
-    const loadWorkout = () => {
-        // First try to get from generatedWorkout, then fall back to savedWorkout
-        const generatedWorkout = localStorage.getItem('generatedWorkout');
-        const savedWorkout = localStorage.getItem('savedWorkout');
-        
-        const workoutToUse = generatedWorkout || savedWorkout;
-        
-        if (workoutToUse) {
-            try {
-                const parsedWorkout = JSON.parse(workoutToUse);
-                setWorkout(parsedWorkout);
-                // Ensure it's saved to both keys for consistency
-                localStorage.setItem('savedWorkout', workoutToUse);
-                if (generatedWorkout) {
-                    localStorage.setItem('generatedWorkout', workoutToUse);
-                }
-                return true;
-            } catch (error) {
-                console.error('Error parsing workout data:', error);
-            }
-        }
-        return false;
-    };
-
-    // Track if component is mounted to prevent hydration issues
+    const [hasCheckedWorkout, setHasCheckedWorkout] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
 
-    // Load workout on component mount
-    useEffect(() => {
-        setIsMounted(true);
-        const hasWorkout = loadWorkout();
-        if (!hasWorkout) {
-            setLoading(false);
-        } else {
-            setLoading(false);
+    // Function to load workout from localStorage
+    const loadWorkout = useCallback(() => {
+        try {
+            const storedWorkout = localStorage.getItem('generatedWorkout');
+            if (!storedWorkout) return false;
+            
+            const parsedWorkout = JSON.parse(storedWorkout);
+            if (!parsedWorkout) return false;
+            
+            setWorkout(parsedWorkout);
+            return true;
+        } catch (error) {
+            console.error('Error parsing workout data:', error);
+            return false;
         }
-    }, [router]);
+    }, []);
 
-    // Listen for storage events to detect changes from other tabs/windows
+    // Handle the initial load and redirect logic
+    useEffect(() => {
+        if (isMounted) {
+            const hasWorkout = loadWorkout();
+            setHasCheckedWorkout(true);
+            
+            if (!hasWorkout && window.location.pathname === '/workout') {
+                router.replace('/');
+            }
+        } else {
+            setIsMounted(true);
+        }
+    }, [isMounted, loadWorkout, router]);
+
+    // Handle storage events from other tabs
     useEffect(() => {
         const handleStorageChange = (e: StorageEvent) => {
-            if (e.key === 'generatedWorkout' || e.key === 'savedWorkout') {
-                loadWorkout();
+            if (e.key === 'generatedWorkout') {
+                if (e.newValue === null) {
+                    // If workout was cleared and we're on the workout page, redirect to home
+                    if (window.location.pathname === '/workout') {
+                        router.replace('/');
+                    }
+                } else {
+                    // Reload the workout if it was updated
+                    loadWorkout();
+                }
             }
         };
 
         window.addEventListener('storage', handleStorageChange);
         return () => window.removeEventListener('storage', handleStorageChange);
-    }, []);
+    }, [loadWorkout, router]);
 
     const getWeekdayName = (day: string): string => {
         const weekdays = {
@@ -91,10 +92,10 @@ export default function Workout() {
         setOpenDay(openDay === day ? null : day);
     };
 
-    if (loading) {
+    if (!isMounted || !hasCheckedWorkout) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
             </div>
         );
     }

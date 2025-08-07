@@ -13,7 +13,15 @@ interface TranslationContextType {
 const TranslationContext = createContext<TranslationContextType | undefined>(undefined);
 
 export const TranslationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>(getUserLanguage());
+  const [language, setLanguageState] = useState<Language>(getUserLanguage());
+
+  // Update language in both state and localStorage
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('userLanguage', lang);
+    }
+  };
 
   const t = (key: TranslationKey): string => {
     return translations[language]?.[key] || translations[getUserLanguage()]?.[key] || key;
