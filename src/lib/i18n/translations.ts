@@ -19,7 +19,7 @@ export type TranslationKey =
   | 'workout.workoutGoal'
   | 'workout.workoutDuration'
   | 'workout.daysPerWeek'
-  | 'workout.availableEquipment'
+  | 'workout.whereWillYouTrain'
   | 'workout.specificFocusAreas'
   | 'workout.injuries'
   | 'workout.injuriesPlaceholder'
@@ -99,7 +99,7 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     'workout.workoutGoal': 'Workout Goal',
     'workout.workoutDuration': 'Workout Duration',
     'workout.daysPerWeek': 'Workout Days Per Week',
-    'workout.availableEquipment': 'Available Equipment',
+    'workout.whereWillYouTrain': 'Where will you train?',
     'workout.specificFocusAreas': 'Specific Focus Areas',
     'workout.injuries': 'Injuries or Limitations',
     'workout.injuriesPlaceholder': 'List any injuries or physical limitations',
@@ -167,7 +167,7 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     'workout.workoutGoal': 'Objetivo do Treino',
     'workout.workoutDuration': 'Duração do Treino',
     'workout.daysPerWeek': 'Dias de Treino por Semana',
-    'workout.availableEquipment': 'Equipamentos Disponíveis',
+    'workout.whereWillYouTrain': 'Onde você vai treinar?',
     'workout.specificFocusAreas': 'Áreas de Foco Específicas',
     'workout.injuries': 'Lesões ou Limitações',
     'workout.injuriesPlaceholder': 'Liste quaisquer lesões ou limitações físicas',

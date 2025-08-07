@@ -20,7 +20,7 @@ export default function GenerateWorkoutPage() {
         duration: '30_min' as WorkoutDuration,
         daysPerWeek: 3,
         selectedDays: ['monday', 'wednesday', 'friday'] as DayOfWeek[],
-        availableEquipment: [] as string[],
+        trainerLocation: [] as string[],
         specificFocusAreas: [] as string[],
         injuries: '',
         additionalNotes: '',
@@ -98,7 +98,7 @@ export default function GenerateWorkoutPage() {
                         workoutDays: formData.selectedDays,
                         workoutDuration: formData.duration,
                         fitnessGoals: [formData.goal],
-                        equipmentAvailable: formData.availableEquipment,
+                        trainerLocation: formData.trainerLocation,
                         focusAreas: formData.specificFocusAreas,
                         additionalNotes: formData.additionalNotes,
                         age: formData.age,
@@ -334,7 +334,7 @@ export default function GenerateWorkoutPage() {
                     {/* Workout Type */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {t('workout.availableEquipment')}
+                            {t('workout.whereWillYouTrain')}
                         </label>
                         <div className="space-y-2">
                             {workoutTypeOptions.map(option => (
@@ -343,11 +343,11 @@ export default function GenerateWorkoutPage() {
                                         type="radio"
                                         name="workoutType"
                                         value={option.value}
-                                        checked={formData.availableEquipment[0] === option.value}
+                                        checked={formData.trainerLocation[0] === option.value}
                                         onChange={() => {
                                             setFormData(prev => ({
                                                 ...prev,
-                                                availableEquipment: [option.value]
+                                                trainerLocation: [option.value]
                                             }));
                                         }}
                                         className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"

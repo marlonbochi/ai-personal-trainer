@@ -39,7 +39,7 @@ interface WorkoutRequestBody {
     duration?: '15_min' | '30_min' | '45_min' | '60_min';
     daysPerWeek?: number;
     selectedDays?: string[];
-    availableEquipment?: string[];
+    trainerLocation?: string[];
     specificFocusAreas?: string[];
     injuries?: string;
     additionalNotes?: string;
@@ -57,7 +57,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             duration = '30_min',
             daysPerWeek = 3,
             selectedDays: rawSelectedDays = ['monday', 'wednesday', 'friday'],
-            availableEquipment = [],
+            trainerLocation = [],
             specificFocusAreas = [],
             injuries = '',
             additionalNotes = '',
@@ -97,8 +97,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
         // Build the prompt with user preferences
         const languagePrompt = language === 'pt' 
-            ? 'O nome e a descrição devem estar em português do Brasil. Use dias da semana em português (segunda-feira, terça-feira, etc.) e certifique-se de que todo o conteúdo esteja em português.'
-            : 'The name and description should be in English. Use weekdays in English (Monday, Tuesday, etc.) and make sure all content is in English.';
+            ? 'O nome e a descrição devem estar em português do Brasil. Use nomes populares para os exercícios. Use dias da semana em português (segunda-feira, terça-feira, etc.) e certifique-se de que todo o conteúdo esteja em português.'
+            : 'The name and description should be in English. Use popular names for exercises. Use weekdays in English (Monday, Tuesday, etc.) and make sure all content is in English.';
             
         const ageGenderPrompt = language === 'pt'
             ? `Esta pessoa tem ${age} anos e é do sexo ${gender === 'male' ? 'masculino' : 'feminino'}.`
@@ -125,13 +125,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             ? `Duração do treino: ${duration.replace('_', ' ')}.`
             : `Workout duration: ${duration.replace('_', ' ')}.`;
             
-        const equipmentPrompt = availableEquipment.length > 0
-            ? language === 'pt'
-                ? `Equipamentos disponíveis: ${availableEquipment.join(', ')}.`
-                : `Available equipment: ${availableEquipment.join(', ')}.`
-            : language === 'pt'
-                ? 'Nenhum equipamento disponível. Use exercícios que não precisam de equipamentos.'
-                : 'No equipment available. Use exercises that require no equipment.';
+        const trainerLocationPrompt = language === 'pt'
+            ? `Eu irei treinar em ${trainerLocation.join(', ')}.`
+            : `I will train in ${trainerLocation.join(', ')}.`;
                 
         const focusPrompt = specificFocusAreas.length > 0
             ? language === 'pt'
@@ -159,7 +155,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         ${levelPrompt}
         ${goalPrompt}
         ${durationPrompt}
-        ${equipmentPrompt}
+        ${trainerLocationPrompt}
         ${focusPrompt}
         ${injuriesPrompt}
         ${notesPrompt}
