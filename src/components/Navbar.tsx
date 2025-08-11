@@ -36,7 +36,7 @@ export default function Navbar() {
   const navItems = [
     { href: '/workout', label: t('nav.home'), icon: '🏋️' },
     { href: '/nutrition', label: t('nutrition.title'), icon: '🍎' },
-    { href: '/about', label: t('nav.about'), icon: 'ℹ️' },
+    { href: '/about', label: t('about.title'), icon: 'ℹ️' },
     // { href: '/generate-workout', label: t('nav.generateWorkout'), icon: '➕' },
   ];
 

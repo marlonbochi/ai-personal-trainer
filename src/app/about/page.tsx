@@ -1,11 +1,5 @@
 'use client';
-import { Metadata } from 'next';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
-
-// export const metadata: Metadata = {
-//   title: 'About - AI Personal Trainer',
-//   description: 'Learn more about the AI Personal Trainer app and its creator',
-// };
 
 export default function AboutPage() {
   const { t } = useTranslation();
