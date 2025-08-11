@@ -19,7 +19,7 @@ export default function Workout() {
             const storedWorkout = localStorage.getItem('generatedWorkout');
             if (!storedWorkout) return false;
             
-            const parsedWorkout = JSON.parse(storedWorkout);
+            const parsedWorkout = JSON.parse(atob(storedWorkout));
             if (!parsedWorkout) return false;
             
             setWorkout(parsedWorkout);

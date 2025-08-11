@@ -1,6 +1,6 @@
 // src/lib/i18n/translations.ts
 import { Language } from './config';
-import { nutritionTranslations, workoutTranslations } from './locales';
+import { nutritionTranslations, workoutTranslations, aboutTranslations } from './locales';
 
 // Helper function to flatten nested translation objects
 function flattenTranslations(translations: any, prefix = ''): Record<string, string> {
@@ -22,6 +22,8 @@ const baseTranslations = {
     // Navigation
     'nav.home': 'My Workouts',
     'nav.generateWorkout': 'New Workout',
+    'nav.generateNutrition': 'New Nutrition Plan',
+    'nav.about': 'About',
     
     // PWA
     'pwa.installTitle': 'Install App',
@@ -41,6 +43,7 @@ const baseTranslations = {
     // Navigation
     'nav.home': 'Meus Treinos',
     'nav.generateWorkout': 'Novo Treino',
+	'nav.generateNutrition': 'Novo Plano Alimentar',
     
     // PWA
     'pwa.installTitle': 'Instalar Aplicativo',
@@ -58,12 +61,14 @@ const translations = {
   en: {
     ...baseTranslations.en,
     ...flattenTranslations(nutritionTranslations.en, 'nutrition'),
-    ...flattenTranslations(workoutTranslations.en, 'workout')
+    ...flattenTranslations(workoutTranslations.en, 'workout'),
+	...flattenTranslations(aboutTranslations.en, 'about')
   },
   pt: {
     ...baseTranslations.pt,
     ...flattenTranslations(nutritionTranslations.pt, 'nutrition'),
-    ...flattenTranslations(workoutTranslations.pt, 'workout')
+    ...flattenTranslations(workoutTranslations.pt, 'workout'),
+	...flattenTranslations(aboutTranslations.pt, 'about')
   }
 } as const;
 
@@ -88,8 +93,13 @@ type WorkoutNestedKey =
   | `daysOfWeek.${keyof typeof workoutTranslations.en.daysOfWeek}`;
 type WorkoutKey = WorkoutBaseKey | WorkoutNestedKey;
 
+// About translation keys
+type AboutBaseKey = keyof typeof aboutTranslations.en;
+type AboutKey = AboutBaseKey;
+
 export type TranslationKey =
   | BaseTranslationKey
   | `nutrition.${NutritionKey}`
-  | `workout.${WorkoutKey}`;
+  | `workout.${WorkoutKey}`
+  | `about.${AboutKey}`;
 export default translations as Record<Language, Record<TranslationKey, string>>;

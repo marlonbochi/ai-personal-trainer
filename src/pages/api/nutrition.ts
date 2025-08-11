@@ -152,7 +152,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             : 'Example format:'
         }
         {
-            "${language === 'pt' ? 'segunda' : 'monday'}": {
+            "${language === 'pt' ? 'Segunda-feira' : 'Monday'}": {
                 "breakfast": {
                     "name": "${language === 'pt' ? 'Omelete de Espinafre' : 'Spinach Omelet'}",
                     "ingredients": [
@@ -182,7 +182,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                     // Array of snack objects with similar structure
                 ]
             },
-            "${language === 'pt' ? 'terca' : 'tuesday'}": {
+            "${language === 'pt' ? 'Terça-feira' : 'Tuesday'}": {
                 // Next day's meals
             }
         }
@@ -225,7 +225,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
                 const geminiResponse = JSON.parse(geminiResponseText);
                 // Ensure the response has the expected structure
-                const responseData = geminiResponse.mealPlan || geminiResponse
+                const responseData = {
+					'days': geminiResponse.mealPlan || geminiResponse
+				};
 				
                 console.log('Sending response:', responseData);
                 return res.status(200).json(responseData);

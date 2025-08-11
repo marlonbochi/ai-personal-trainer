@@ -41,7 +41,8 @@ const nutritionTranslations = {
     gluten_free: 'Gluten Free',
     lactose_free: 'Lactose Free',
     halal: 'Halal'
-  }
+  },
+  howToMake: 'How to make'
 };
 
 export default nutritionTranslations;

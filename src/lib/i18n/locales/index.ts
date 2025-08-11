@@ -2,6 +2,8 @@ import enNutrition from './en/nutrition';
 import ptNutrition from './pt/nutrition';
 import { workoutTranslations as enWorkout } from './en/workout';
 import { workoutTranslations as ptWorkout } from './pt/workout';
+import { aboutTranslations as enAbout } from './en/about';
+import { aboutTranslations as ptAbout } from './pt/about';
 
 export const nutritionTranslations = {
   en: enNutrition,
@@ -13,10 +15,17 @@ export const workoutTranslations = {
   pt: ptWorkout,
 };
 
+export const aboutTranslations = {
+  en: enAbout,
+  pt: ptAbout,
+};
+
 export type NutritionTranslationKey = keyof typeof enNutrition | 
   `goals.${keyof typeof enNutrition.goals}` |
   `cuisines.${keyof typeof enNutrition.cuisines}` |
   `restrictions.${keyof typeof enNutrition.restrictions}`;
+
+export type AboutTranslationKey = keyof typeof enAbout;
 
 export type WorkoutTranslationKey = keyof typeof enWorkout |
   `levels.${keyof typeof enWorkout.levels}` |

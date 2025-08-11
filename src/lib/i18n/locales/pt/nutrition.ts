@@ -22,6 +22,7 @@ const nutritionTranslations = {
   additionalNotes: 'Notas Adicionais',
   additionalNotesPlaceholder: 'Preferências alimentares, alergias ou requisitos especiais...',
   meals: 'Refeições',
+  howToMake: 'Como fazer',
   goals: {
     weight_loss: 'Perda de Peso',
     muscle_gain: 'Ganho de Massa Muscular',

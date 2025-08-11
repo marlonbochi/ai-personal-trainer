@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { TranslationKey } from '@/lib/i18n/translations';
 import { fetchWithValidation } from '@/lib/api';
@@ -10,7 +10,7 @@ type DietGoal = 'weight_loss' | 'muscle_gain' | 'maintenance' | 'endurance';
 
 export default function GenerateNutritionPage() {
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
     
     const [formData, setFormData] = useState({
         dietGoal: 'maintenance' as DietGoal,
@@ -24,6 +24,21 @@ export default function GenerateNutritionPage() {
         age: 30,
         gender: 'male' as 'male' | 'female'
     });
+
+	useEffect(() => {
+		const savedData = localStorage.getItem('nutritionPreferences');
+		if (savedData) {
+			try {
+				const parsedData = JSON.parse(savedData);
+				setFormData(prev => ({
+					...prev,
+					...parsedData
+				}));
+			} catch (error) {
+				console.error('Error parsing saved preferences:', error);
+			}
+		}
+	}, []);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,14 +55,16 @@ export default function GenerateNutritionPage() {
         setIsSubmitting(true);
         
         try {
+			localStorage.setItem('nutritionPreferences', JSON.stringify(formData));
+
             const data = await fetchWithValidation('/api/nutrition', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({language, ...formData}),
             });
 
             if (data) {
-                localStorage.setItem('generatedNutrition', JSON.stringify(data));
+                localStorage.setItem('generatedNutrition', btoa(JSON.stringify(data)));
                 router.push('/nutrition');
             }
         } catch (error) {

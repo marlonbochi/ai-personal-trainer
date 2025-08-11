@@ -111,7 +111,7 @@ export default function GenerateWorkoutPage() {
                 }
                 
                 // Save the generated workout to localStorage
-                localStorage.setItem('generatedWorkout', JSON.stringify(data));
+                localStorage.setItem('generatedWorkout', btoa(JSON.stringify(data)));
                 
                 // Redirect to the workout page
                 router.push('/workout');
