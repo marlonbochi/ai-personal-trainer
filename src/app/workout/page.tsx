@@ -19,11 +19,24 @@ export default function Workout() {
             const storedWorkout = localStorage.getItem('generatedWorkout');
             if (!storedWorkout) return false;
             
-            const parsedWorkout = JSON.parse(atob(storedWorkout));
-            if (!parsedWorkout) return false;
-            
-            setWorkout(parsedWorkout);
-            return true;
+			try {
+				const parsedWorkout = JSON.parse(atob(storedWorkout));
+				if (!parsedWorkout) return false;
+				
+				setWorkout(parsedWorkout);
+				return true;
+			} catch (error) {
+				try {
+					const parsedWorkout = JSON.parse(storedWorkout);
+					if (!parsedWorkout) return false;
+					
+					setWorkout(parsedWorkout);
+					return true;
+				} catch (error) {
+					console.error('Error parsing workout data:', error);
+					return false;
+				}
+			}
         } catch (error) {
             console.error('Error parsing workout data:', error);
             return false;
