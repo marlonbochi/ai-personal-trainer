@@ -14,5 +14,5 @@ export const aboutTranslations = {
   step2Desc: 'Nossa IA gera um plano de treino e nutrição personalizado para você.',
   step3Title: 'Acompanhe e Melhore',
   step3Desc: 'Siga seu plano, acompanhe seu progresso e faça ajustes conforme necessário.',
-  connectWithMe: 'Conecte-se comigo nas redes sociais'
+  connectWithMe: 'Você pode me encontrar em'
 };

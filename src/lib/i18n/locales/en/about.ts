@@ -14,5 +14,5 @@ export const aboutTranslations = {
   step2Desc: 'Our AI generates a personalized workout and nutrition plan just for you.',
   step3Title: 'Track & Improve',
   step3Desc: 'Follow your plan, track your progress, and adjust as needed.',
-  connectWithMe: 'Connect with me on social media'
+  connectWithMe: 'You can find me on'
 };
