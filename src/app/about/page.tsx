@@ -1,5 +1,7 @@
 'use client';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
+import { Github, Instagram } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AboutPage() {
   const { t } = useTranslation();
@@ -87,6 +89,33 @@ export default function AboutPage() {
               </div>
             </div>
           </section>
+          
+          {/* Social Media Links */}
+          <div className="mt-12 pt-8 border-t border-gray-200">
+            <h3 className="text-lg font-medium text-center text-gray-900 mb-4">
+              {t('about.connectWithMe')}
+            </h3>
+            <div className="flex justify-center space-x-6">
+              <Link 
+                href="https://instagram.com/marlonbochi" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-pink-600 transition-colors"
+                aria-label="Instagram"
+              >
+                <Instagram className="h-8 w-8" />
+              </Link>
+              <Link 
+                href="https://github.com/marlonbochi/ai-personal-trainer" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-gray-900 transition-colors"
+                aria-label="GitHub"
+              >
+                <Github className="h-8 w-8" />
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

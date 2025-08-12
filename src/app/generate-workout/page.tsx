@@ -188,17 +188,20 @@ export default function GenerateWorkoutPage() {
                             <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
                                 {t('workout.age')}
                             </label>
-                            <input
-                                type="number"
+                            <select
                                 id="age"
                                 name="age"
-                                min="15"
-                                max="99"
                                 value={formData.age}
                                 onChange={handleChange}
                                 disabled={isSubmitting}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:opacity-75 disabled:bg-gray-50"
-                            />
+                            >
+                                {Array.from({ length: 85 }, (_, i) => 15 + i).map(age => (
+                                    <option key={age} value={age}>
+                                        {age} {t('workout.yearsOld')}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">

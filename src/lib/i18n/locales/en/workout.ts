@@ -25,6 +25,7 @@ export const workoutTranslations = {
 	gender: 'Gender',
 	genderMale: 'Male',
 	genderFemale: 'Female',
+	yearsOld: 'years old',
 	levels: {
 	  beginner: 'Beginner',
 	  intermediate: 'Intermediate',

@@ -44,10 +44,29 @@ export default function GenerateNutritionPage() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target as HTMLInputElement;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'number' ? parseInt(value) || 0 : value
-        }));
+        
+        // Handle numeric inputs
+        if (name === 'caloriesPerDay' || name === 'budgetPerWeek') {
+            // Only allow numbers and empty string
+            if (value === '' || /^\d+$/.test(value)) {
+                setFormData(prev => ({
+                    ...prev,
+                    [name]: value === '' ? '' : parseInt(value, 10)
+                }));
+            }
+        } else if (name === 'age' || name === 'mealsPerDay') {
+            // For other numeric fields that use select
+            setFormData(prev => ({
+                ...prev,
+                [name]: parseInt(value, 10)
+            }));
+        } else {
+            // For all other fields
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -98,15 +117,20 @@ export default function GenerateNutritionPage() {
                             <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
                                 {t('nutrition.age')}
                             </label>
-                            <input
-                                type="number"
+                            <select
                                 id="age"
                                 name="age"
                                 value={formData.age}
                                 onChange={handleChange}
                                 disabled={isSubmitting}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:opacity-75 disabled:bg-gray-50"
-                            />
+                            >
+                                {Array.from({ length: 85 }, (_, i) => 15 + i).map(age => (
+                                    <option key={age} value={age}>
+                                        {age} {t('nutrition.yearsOld')}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -167,7 +191,9 @@ export default function GenerateNutritionPage() {
                                 {t('nutrition.caloriesPerDay')}
                             </label>
                             <input
-                                type="number"
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
                                 id="caloriesPerDay"
                                 name="caloriesPerDay"
                                 value={formData.caloriesPerDay}
@@ -181,7 +207,9 @@ export default function GenerateNutritionPage() {
                                 {t('nutrition.budgetPerWeek')} ({t('nutrition.currency')})
                             </label>
                             <input
-                                type="number"
+                                type="text"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
                                 id="budgetPerWeek"
                                 name="budgetPerWeek"
                                 value={formData.budgetPerWeek}

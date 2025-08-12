@@ -16,6 +16,7 @@ const nutritionTranslations = {
   gender: 'Gender',
   genderMale: 'Male',
   genderFemale: 'Female',
+  yearsOld: 'years old',
   caloriesPerDay: 'Calories per Day',
   budgetPerWeek: 'Budget per Week',
   currency: 'USD',
