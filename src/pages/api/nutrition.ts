@@ -153,7 +153,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         }
         {
             "${language === 'pt' ? 'Segunda-feira' : 'Monday'}": {
-                "breakfast": {
+                "Breakfast": {
                     "name": "${language === 'pt' ? 'Omelete de Espinafre' : 'Spinach Omelet'}",
                     "ingredients": [
                         "2 ovos",
@@ -172,13 +172,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                         "fat": 22
                     }
                 },
-                "lunch": {
+                "Lunch": {
                     // Similar structure for lunch
                 },
-                "dinner": {
+                "Dinner": {
                     // Similar structure for dinner
                 },
-                "snacks": [
+                "Snacks": [
                     // Array of snack objects with similar structure
                 ]
             },

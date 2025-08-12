@@ -233,7 +233,7 @@ export default function GenerateNutritionPage() {
                             disabled={isSubmitting}
                             className="mt-1 block w-full pl-3 pr-10 py-2 text-base sm:text-sm disabled:opacity-75 disabled:bg-gray-50"
                         >
-                            {[3, 4, 5, 6].map(num => (
+                            {[3, 4, 5, 6, 7, 8].map(num => (
                                 <option key={num} value={num}>{num} {t('nutrition.meals')}</option>
                             ))}
                         </select>
