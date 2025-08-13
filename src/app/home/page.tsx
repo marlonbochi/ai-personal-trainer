@@ -14,14 +14,22 @@ export default function Home() {
     const generatedWorkout = localStorage.getItem('generatedWorkout');
     if (generatedWorkout) {
       try {
-        const parsedWorkout = JSON.parse(generatedWorkout);
+        const parsedWorkout = JSON.parse(atob(generatedWorkout));
         if (parsedWorkout && Object.keys(parsedWorkout).length > 0) {
           // Redirect to workout page if we have a valid saved workout
           router.push('/workout');
           return;
         }
       } catch (error) {
-        console.error('Error parsing saved workout:', error);
+		try {
+			const parsedWorkout = JSON.parse(generatedWorkout);
+			if (parsedWorkout && Object.keys(parsedWorkout).length > 0) {
+			  // Redirect to workout page if we have a valid saved workout
+			  router.push('/workout');
+			}
+		} catch (error) {
+			console.error('Error parsing saved workout:', error);
+		}
       }
     }
     setIsLoading(false);
