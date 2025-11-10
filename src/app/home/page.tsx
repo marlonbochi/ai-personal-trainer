@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
+import { GoInfo } from "react-icons/go";
 
 export default function Home() {
   const router = useRouter();
@@ -48,17 +49,25 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg text-center">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">
-          {t('workout.title')}
+          {t('app.name')}
         </h1>
         <p className="text-gray-600 mb-8">
-          {t('workout.tagline')}
+          {t('app.description')}
         </p>
-        <button
-          onClick={() => router.push('/generate-workout')}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
-        >
-          {t('workout.getStarted')}
-        </button>
+		<div className="flex gap-2">
+			<button
+			onClick={() => router.push('/generate-workout')}
+			className="flex-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+			>
+			{t('workout.getStarted')}
+			</button>
+			<button
+			onClick={() => router.push('/about')}
+			className="flex-1 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
+			>
+				<GoInfo title={t('about.title')} />
+			</button>
+		</div>
       </div>
     </div>
   );

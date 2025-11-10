@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import ClientLayout from "./client-layout";
-import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "AI Personal Trainer",
