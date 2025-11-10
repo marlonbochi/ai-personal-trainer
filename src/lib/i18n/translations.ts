@@ -18,7 +18,7 @@ const baseTranslations = {
   en: {
     // App
     'app.name': 'AI Trainer',
-	'app.description': 'Welcome to AI Trainer, a personal trainer that uses AI to help you achieve your fitness goals.',
+	'app.description': 'Welcome to AI Trainer, a personal trainer that uses AI to help you achieve your health goals.',
     
     // Navigation
     'nav.home': 'My Workouts',
@@ -40,7 +40,7 @@ const baseTranslations = {
   pt: {
 	// App
     'app.name': 'AI Trainer',
-    'app.description': 'Bem vindo ao AI Trainer, um treinador personalizado que usa IA para ajudar você a alcançar seus objetivos de fitness.',    
+    'app.description': 'Bem vindo ao AI Trainer, um treinador personalizado que usa IA para ajudar você a alcançar seus objetivos para uma vida saudável.',    
     // Navigation
     'nav.home': 'Meus Treinos',
     'nav.generateWorkout': 'Novo Treino',
