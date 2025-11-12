@@ -64,5 +64,8 @@ export const workoutTranslations = {
 	  friday: 'Friday',
 	  saturday: 'Saturday',
 	  sunday: 'Sunday'
-	}
+	},
+
+	deleteExercise: 'Delete Exercise',
+	replaceExercise: 'Replace Exercise',
   };

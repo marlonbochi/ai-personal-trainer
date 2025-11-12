@@ -2,9 +2,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronDown, ChevronUp, Pencil } from 'lucide-react';
+import { ChevronDown, ChevronUp, Pencil, X } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
 import { Language } from '@/lib/i18n/config';
+import Modal from '@/components/ui/Modal';
 
 export default function Workout() {
     const router = useRouter();
@@ -12,6 +13,9 @@ export default function Workout() {
     const [workout, setWorkout] = useState<any>(null);
     const [hasCheckedWorkout, setHasCheckedWorkout] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
+	const [isTouched, setIsTouched] = useState(false);
+	const [isLongTouched, setIsLongTouched] = useState(false);
+	const [exerciseModal, setExerciseModal] = useState<any>(null);
 
     // Function to load workout from localStorage
     const loadWorkout = useCallback(() => {
@@ -126,6 +130,33 @@ export default function Workout() {
         );
     }
 
+	const handleTouchStart = (exercise: any) => {
+		setIsTouched(true);
+		setTimeout(() => setIsLongTouched(true), 2000);
+		setExerciseModal(exercise);
+	};
+
+	const handleTouchEnd = () => {
+		setIsTouched(false);
+		setIsLongTouched(false);
+		setExerciseModal(null);
+	};
+
+	const deleteExercise = () => {
+		setWorkout((prevWorkout: any) => {
+			const newWorkout = { ...prevWorkout };
+			newWorkout[exerciseModal.day] = newWorkout[exerciseModal.day].filter(
+				(ex: any) => ex.id !== exerciseModal.id
+			);
+			return newWorkout;
+		});
+		setExerciseModal(null);
+	};
+
+	const replaceExercise = () => {
+		setExerciseModal(null);
+	};
+
     return (
         <div className="min-h-screen bg-gray-50 py-8 flex flex-col items-center relative">
             {/* Floating Action Button */}
@@ -168,7 +199,32 @@ export default function Workout() {
                                         {Array.isArray(exercises) ? (
                                             exercises.map((exercise: any, exIndex: number) => (
                                                 exercise && exercise.name ? (
-                                                    <div key={`${day}-${exIndex}`} className="mb-6 last:mb-0">
+                                                    <div key={`${day}-${exIndex}`} className="mb-6 last:mb-0" onTouchStart={() => handleTouchStart(exercise)} onTouchEnd={handleTouchEnd}>
+                                                    {isTouched && isLongTouched && (
+														<Modal 
+															open={isLongTouched} 
+															onClose={() => setIsLongTouched(false)}
+															title={exerciseModal.name}
+														>
+															{exerciseModal.description && (
+																<p className="text-gray-600 mt-2">{exerciseModal.description}</p>
+															)}
+															<div className="flex justify-end mt-4 space-x-2">
+																<button 
+																	className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors" 
+																	onClick={deleteExercise}
+																>
+																	{t('workout.deleteExercise')}
+																</button>
+																<button 
+																	className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+																	onClick={replaceExercise}
+																>
+																	{t('workout.replaceExercise')}
+																</button>
+															</div>
+														</Modal>
+                                                    )}
                                                         <h3 className="text-xl font-semibold text-gray-800">{exercise.name}</h3>
                                                         {exercise.description && (
                                                             <p className="text-gray-600 mt-2">{exercise.description}</p>
