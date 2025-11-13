@@ -239,7 +239,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 // Ensure the response has the expected structure
                 const responseData = geminiResponse.workout || geminiResponse
 				
-                console.log('Sending response:', responseData);
+                // console.log('Sending response:', responseData);
                 return res.status(200).json(responseData);
             } catch (parseError) {
                 console.error('Error parsing Gemini response:', parseError);

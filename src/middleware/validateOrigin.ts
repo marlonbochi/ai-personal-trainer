@@ -2,8 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 // List of allowed origins (add your production domain here)
 const ALLOWED_ORIGINS = [
-  'http://localhost:3000',
-  'https://aitrainer.marlonbochi.com.br',
+  'aitrainer.marlonbochi.com.br',
   'projects.vercel.app',
   // Add other domains as needed
 ];
