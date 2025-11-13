@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 const ALLOWED_ORIGINS = [
   'http://localhost:3000',
   'https://aitrainer.marlonbochi.com.br',
+  'projects.vercel.app',
   // Add other domains as needed
 ];
 
@@ -20,7 +21,7 @@ function validateOrigin(req: NextApiRequest) {
   // Check if the referer is from an allowed origin
   const isRefererAllowed = !referer || 
     ALLOWED_ORIGINS.some(allowed => 
-      referer.startsWith(allowed)
+      new RegExp(allowed, 'i').test(referer)
     );
 
   return isSameOrigin && isRefererAllowed;
