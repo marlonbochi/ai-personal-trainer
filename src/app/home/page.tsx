@@ -11,6 +11,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+	console.log(process.env.NEXT_PUBLIC_APP_URL);
     // Check for saved workout in localStorage
     const generatedWorkout = localStorage.getItem('generatedWorkout');
     if (generatedWorkout) {

@@ -204,7 +204,7 @@ export default function Workout() {
                                         {Array.isArray(exercises) ? (
                                             exercises.map((exercise: any, exIndex: number) => (
                                                 exercise && exercise.name ? (
-                                                    <div key={`${day}-${exIndex}`} className="mb-6 last:mb-0" onTouchStart={() => handleTouchStart(exercise)} onTouchEnd={handleTouchEnd}>
+                                                    <div key={`${day}-${exIndex}`} className={`mb-6 last:mb-0 ${isTouched && isLongTouched ? 'z-50' : ''} ${isTouched && isLongTouched ? 'pointer-events-none' : ''}`} onTouchStart={() => handleTouchStart(exercise)} onTouchEnd={handleTouchEnd}>
                                                     {isTouched && isLongTouched && (
 														<Modal 
 															open={isLongTouched} 
