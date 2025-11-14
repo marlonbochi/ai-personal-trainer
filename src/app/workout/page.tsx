@@ -204,7 +204,11 @@ export default function Workout() {
                                         {Array.isArray(exercises) ? (
                                             exercises.map((exercise: any, exIndex: number) => (
                                                 exercise && exercise.name ? (
-                                                    <div key={`${day}-${exIndex}`} className={`mb-6 last:mb-0 ${isTouched && isLongTouched ? 'z-50' : ''} ${isTouched && isLongTouched ? 'pointer-events-none' : ''}`} onTouchStart={() => handleTouchStart(exercise)} onTouchEnd={handleTouchEnd}>
+                                                    <div 
+														key={`${day}-${exIndex}`} 
+														className={`mb-6 select-none last:mb-0 ${isTouched ? 'active:scale-95 active:shadow-lg transition-transform duration-150' : ''}`} 
+														onTouchStart={() => handleTouchStart(exercise)} onTouchEnd={handleTouchEnd}
+													>
                                                     {isTouched && isLongTouched && (
 														<Modal 
 															open={isLongTouched} 
@@ -232,7 +236,7 @@ export default function Workout() {
                                                     )}
                                                         <h3 className="text-xl font-semibold text-gray-800">{exercise.name}</h3>
                                                         {exercise.description && (
-                                                            <p className="text-gray-600 mt-2">{exercise.description}</p>
+                                                            <p className="text-gray-600 mt-2 user-select-none">{exercise.description}</p>
                                                         )}
                                                     </div>
                                                 ) : null

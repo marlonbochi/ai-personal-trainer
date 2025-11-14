@@ -20,7 +20,7 @@ export default function GenerateWorkoutPage() {
         duration: '30_min' as WorkoutDuration,
         daysPerWeek: 3,
         selectedDays: ['monday', 'wednesday', 'friday'] as DayOfWeek[],
-        trainerLocation: [] as string[],
+        trainerLocation: ['gym'] as string[],
         specificFocusAreas: [] as string[],
         injuries: '',
         additionalNotes: '',
