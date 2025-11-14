@@ -11,19 +11,13 @@ function validateOrigin(req: NextApiRequest) {
   const origin = req.headers.origin;
   const referer = req.headers.referer;
   
-  // Get the host from environment variables or use a default
-  const host = process.env.NEXT_PUBLIC_APP_URL || 'https://aitrainer.marlonbochi.com.br';
-  
-  // Check if the request is coming from the same origin
-  const isSameOrigin = !origin || origin === host;
-  
   // Check if the referer is from an allowed origin
   const isRefererAllowed = !referer || 
     ALLOWED_ORIGINS.some(allowed => 
       new RegExp(allowed, 'i').test(referer)
     );
 
-  return isSameOrigin && isRefererAllowed;
+  return isRefererAllowed;
 }
 
 type ApiHandler = (req: NextApiRequest, res: NextApiResponse) => Promise<void> | void;
