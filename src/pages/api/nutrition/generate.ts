@@ -2,7 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import * as dotenv from 'dotenv';
-import { withOriginValidation } from '../../middleware/validateOrigin';
+import { withOriginValidation } from '../../../middleware/validateOrigin';
 
 dotenv.config();
 
@@ -12,7 +12,11 @@ if (!API_KEY) {
     throw new Error('GEMINI_API_KEY is not configured');
 }
 
-const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const API_URL = process.env.GEMINI_API_URL;
+if (!API_URL) {
+    console.error('GEMINI_API_URL is not set in environment variables');
+    throw new Error('GEMINI_API_URL is not configured');
+}
 
 interface GeminiRequest {
     contents: {
@@ -192,7 +196,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             : 'Make sure the meal plan is balanced, varied, and meets daily nutritional needs. Include a variety of fruits, vegetables, lean proteins, whole grains, and healthy fats.'
         }`;
 
-        const urlGemini = `${API_URL}?key=${API_KEY}`;
+        const urlGemini = `${API_URL}`;
 
         try {
             const requestData: GeminiRequest = {
@@ -206,6 +210,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 {
                     headers: {
                         'Content-Type': 'application/json',
+						'x-goog-api-key': API_KEY
                     },
                 }
             );
@@ -229,7 +234,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 					'days': geminiResponse.mealPlan || geminiResponse
 				};
 				
-                console.log('Sending response:', responseData);
+                // console.log('Sending response:', responseData);
                 return res.status(200).json(responseData);
             } catch (parseError) {
                 console.error('Error parsing Gemini response:', parseError);

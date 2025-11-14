@@ -76,7 +76,7 @@ export default function GenerateNutritionPage() {
         try {
 			localStorage.setItem('nutritionPreferences', JSON.stringify(formData));
 
-            const data = await fetchWithValidation('/api/nutrition', {
+            const data = await fetchWithValidation('/api/nutrition/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({language, ...formData}),

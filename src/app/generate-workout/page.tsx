@@ -87,7 +87,7 @@ export default function GenerateWorkoutPage() {
             
             try {
                 // Call the workout API to generate the workout plan
-                const data = await fetchWithValidation('/api/workout', {
+                const data = await fetchWithValidation('/api/workout/generate', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
