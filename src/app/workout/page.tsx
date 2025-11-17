@@ -143,8 +143,6 @@ export default function Workout() {
 
 	const handleTouchEnd = () => {
 		setIsTouched(false);
-		setIsLongTouched(false);
-		setExerciseModal(null);
 	};
 
 	const deleteExercise = () => {
@@ -209,7 +207,7 @@ export default function Workout() {
 														className={`mb-6 select-none last:mb-0 ${isTouched ? 'active:scale-95 active:shadow-lg transition-transform duration-150' : ''}`} 
 														onTouchStart={() => handleTouchStart(exercise)} onTouchEnd={handleTouchEnd}
 													>
-                                                    {isTouched && isLongTouched && (
+                                                    {isLongTouched && (
 														<Modal 
 															open={isLongTouched} 
 															onClose={() => setIsLongTouched(false)}
