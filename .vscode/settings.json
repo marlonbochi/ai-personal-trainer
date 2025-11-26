@@ -1,20 +1,23 @@
 {
-  "css.validate": false,
-  "less.validate": false,
-  "scss.validate": false,
-  "editor.quickSuggestions": {
-    "strings": true
-  },
-  "tailwindCSS.includeLanguages": {
-    "plaintext": "html"
-  },
-  "files.associations": {
-    "*.css": "tailwindcss"
-  },
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.codeActionsOnSave": {
-	"source.fixAll.eslint": "explicit"
-},
-"postman.settings.dotenv-detection-notification-visibility": false
+	"css.validate": false,
+	"less.validate": false,
+	"scss.validate": false,
+	"editor.quickSuggestions": {
+		"strings": true
+	},
+	"tailwindCSS.includeLanguages": {
+		"plaintext": "html"
+	},
+	"files.associations": {
+		"*.css": "tailwindcss"
+	},
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit"
+	},
+	"postman.settings.dotenv-detection-notification-visibility": false,
+	"editor.insertSpaces": false,
+	"editor.tabSize": 4,
+	"editor.detectIndentation": false,
 }
