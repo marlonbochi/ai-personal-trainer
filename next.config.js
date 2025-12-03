@@ -18,20 +18,18 @@ const nextConfig = {
     // Enable CSS optimizations
     optimizeCss: true,
   },
-  // Simple webpack configuration
-  webpack: (config) => {
+  // Explicitly configure Turbopack
+  turbopack: {},
+  // Keep webpack configuration for build time
+  webpack: (config, { isServer }) => {
+    // Add any necessary webpack configurations here
     return config;
   },
   // Enable static exports for static site generation
   output: 'standalone',
-  // Disable React's Strict Mode for development
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  // Disable TypeScript type checking during build
-  typescript: {
-    ignoreBuildErrors: true,
-  }
 };
+
+// Remove the empty eslint configuration from the config
+delete nextConfig.eslint;
 
 module.exports = withPWA(nextConfig);
