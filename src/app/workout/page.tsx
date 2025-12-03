@@ -209,6 +209,7 @@ export default function Workout() {
 														key={`${day}-${exIndex}`} 
 														className={`mb-6 select-none last:mb-0 ${isTouched ? 'active:scale-95 active:shadow-lg transition-transform duration-150' : ''}`} 
 														onTouchStart={() => handleTouchStart(exercise)} onTouchEnd={handleTouchEnd}
+														onMouseDown={() => handleTouchStart(exercise)} onMouseUp={handleTouchEnd}
 													>
                                                     {isLongTouched && (
 														<Modal 
