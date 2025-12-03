@@ -130,9 +130,11 @@ export default function Workout() {
         );
     }
 
+	let timer: NodeJS.Timeout;
+
 	const handleTouchStart = (exercise: any) => {
 		setIsTouched(true);
-		setTimeout(() => {
+		timer = setTimeout(() => {
 			console.log(isTouched);
 			if (isTouched) {
 				setIsLongTouched(true);
@@ -143,6 +145,7 @@ export default function Workout() {
 
 	const handleTouchEnd = () => {
 		setIsTouched(false);
+		clearTimeout(timer);
 	};
 
 	const deleteExercise = () => {
@@ -210,7 +213,7 @@ export default function Workout() {
                                                     {isLongTouched && (
 														<Modal 
 															open={isLongTouched} 
-															onClose={() => setIsLongTouched(false)}
+															onClose={() => { setIsLongTouched(false); setExerciseModal(null); }}
 															title={exerciseModal.name}
 														>
 															{exerciseModal.description && (

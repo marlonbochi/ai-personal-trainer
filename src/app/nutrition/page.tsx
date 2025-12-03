@@ -27,13 +27,14 @@ export default function NutritionPage() {
         age: 30,
         gender: 'male'
     });
+	const weekDay = new Date().getDay() - 1;
 
     useEffect(() => {
         setIsMounted(true);
         const storedPlan = localStorage.getItem('generatedNutrition');
         if (storedPlan) {
             setPlan(JSON.parse(atob(storedPlan)));
-            const firstDay = Object.keys(JSON.parse(atob(storedPlan)).days)[0];
+            const firstDay = Object.keys(JSON.parse(atob(storedPlan)).days)[weekDay ?? 0];
             if (firstDay) setOpenDay(firstDay);
         }
 
