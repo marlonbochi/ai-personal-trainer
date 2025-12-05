@@ -134,9 +134,10 @@ export default function Workout() {
 	const handleTouchStart = (exercise: any) => {
 		isTouched.current = true;
 		timer.current = setTimeout(() => {
-			console.log(isTouched.current);
+			console.log("touched", isTouched.current);
 			if (isTouched.current) {
 				isLongTouched.current = true;
+				console.log("long touched", isLongTouched.current);
 			}
 		}, 2000);
 		setExerciseModal(exercise);
