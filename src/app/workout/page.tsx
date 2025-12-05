@@ -6,6 +6,7 @@ import { ChevronDown, ChevronUp, Pencil, X } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
 import { Language } from '@/lib/i18n/config';
 import Modal from '@/components/ui/Modal';
+import { fetchWithValidation } from '@/lib/api';
 
 export default function Workout() {
     const router = useRouter();
@@ -159,8 +160,18 @@ export default function Workout() {
 		setExerciseModal(null);
 	};
 
-	const replaceExercise = () => {
+	const replaceExercise = async () => {
+
+		const data = await fetchWithValidation('/api/workout/edit', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(exerciseModal),
+		});
+
 		setExerciseModal(null);
+
 	};
 
     return (
