@@ -137,10 +137,10 @@ export default function Workout() {
 			console.log("touched", isTouched.current);
 			if (isTouched.current) {
 				isLongTouched.current = true;
+				setExerciseModal(exercise);
 				console.log("long touched", isLongTouched.current);
 			}
 		}, 2000);
-		setExerciseModal(exercise);
 	};
 
 	const handleTouchEnd = () => {
