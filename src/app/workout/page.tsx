@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp, Pencil, X } from 'lucide-react';
@@ -13,9 +13,10 @@ export default function Workout() {
     const [workout, setWorkout] = useState<any>(null);
     const [hasCheckedWorkout, setHasCheckedWorkout] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
-	const [isTouched, setIsTouched] = useState(false);
-	const [isLongTouched, setIsLongTouched] = useState(false);
+	let isTouched = useRef(false);
+	let isLongTouched = useRef(false);
 	const [exerciseModal, setExerciseModal] = useState<any>(null);
+	let timer = useRef<NodeJS.Timeout | null>(null);
 
     // Function to load workout from localStorage
     const loadWorkout = useCallback(() => {
@@ -130,22 +131,20 @@ export default function Workout() {
         );
     }
 
-	let timer: NodeJS.Timeout;
-
 	const handleTouchStart = (exercise: any) => {
-		setIsTouched(true);
-		timer = setTimeout(() => {
-			console.log(isTouched);
-			if (isTouched) {
-				setIsLongTouched(true);
+		isTouched.current = true;
+		timer.current = setTimeout(() => {
+			console.log(isTouched.current);
+			if (isTouched.current) {
+				isLongTouched.current = true;
 			}
 		}, 2000);
 		setExerciseModal(exercise);
 	};
 
 	const handleTouchEnd = () => {
-		setIsTouched(false);
-		clearTimeout(timer);
+		isTouched.current = false;
+		if (timer.current) clearTimeout(timer.current);
 	};
 
 	const deleteExercise = () => {
@@ -207,14 +206,14 @@ export default function Workout() {
                                                 exercise && exercise.name ? (
                                                     <div 
 														key={`${day}-${exIndex}`} 
-														className={`mb-6 select-none last:mb-0 ${isTouched ? 'active:scale-95 active:shadow-lg transition-transform duration-150' : ''}`} 
+														className={`mb-6 select-none last:mb-0 ${isTouched.current ? 'active:scale-95 active:shadow-lg transition-transform duration-150' : ''}`} 
 														onTouchStart={() => handleTouchStart(exercise)} onTouchEnd={handleTouchEnd}
 														onMouseDown={() => handleTouchStart(exercise)} onMouseUp={handleTouchEnd}
 													>
-                                                    {isLongTouched && (
+                                                    {isLongTouched.current && (
 														<Modal 
-															open={isLongTouched} 
-															onClose={() => { setIsLongTouched(false); setExerciseModal(null); }}
+															open={isLongTouched.current} 
+															onClose={() => { isLongTouched.current = false; setExerciseModal(null); }}
 															title={exerciseModal.name}
 														>
 															{exerciseModal.description && (
