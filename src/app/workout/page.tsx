@@ -139,7 +139,7 @@ export default function Workout() {
 			if (isTouched) {
 				setIsLongTouched(true);
 			}
-		}, 3000);
+		}, 2000);
 		setExerciseModal(exercise);
 	};
 
