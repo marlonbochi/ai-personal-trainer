@@ -14,7 +14,8 @@ export default function Workout() {
     const [workout, setWorkout] = useState<any>(null);
     const [hasCheckedWorkout, setHasCheckedWorkout] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
-	let isTouched = useRef(false);
+	const [isTouched, setIsTouched] = useState(false);
+	const isTouchedRef = useRef(false);
 	let isLongTouched = useRef(false);
 	const [exerciseModal, setExerciseModal] = useState<any>(null);
 	let timer = useRef<NodeJS.Timeout | null>(null);
@@ -133,10 +134,11 @@ export default function Workout() {
     }
 
 	const handleTouchStart = (exercise: any) => {
-		isTouched.current = true;
+		setIsTouched(true);
+		isTouchedRef.current = true;
 		timer.current = setTimeout(() => {
-			console.log("touched", isTouched.current);
-			if (isTouched.current) {
+			console.log("touched", isTouched);
+			if (isTouchedRef.current) {
 				isLongTouched.current = true;
 				setExerciseModal(exercise);
 				console.log("long touched", isLongTouched.current);
@@ -145,8 +147,12 @@ export default function Workout() {
 	};
 
 	const handleTouchEnd = () => {
-		isTouched.current = false;
-		if (timer.current) clearTimeout(timer.current);
+		setIsTouched(false);
+		isTouchedRef.current = false;
+		if (timer.current) {
+			clearTimeout(timer.current);
+			timer.current = null;
+		}
 	};
 
 	const deleteExercise = () => {
@@ -218,7 +224,7 @@ export default function Workout() {
                                                 exercise && exercise.name ? (
                                                     <div 
 														key={`${day}-${exIndex}`} 
-														className={`mb-6 select-none last:mb-0 ${isTouched.current ? 'active:scale-95 active:shadow-lg transition-transform duration-150' : ''}`} 
+														className={`mb-6 select-none last:mb-0 ${isTouched ? 'active:scale-95 active:shadow-lg transition-transform duration-150' : ''}`} 
 														onTouchStart={() => handleTouchStart(exercise)} onTouchEnd={handleTouchEnd}
 														onMouseDown={() => handleTouchStart(exercise)} onMouseUp={handleTouchEnd}
 													>
