@@ -137,7 +137,7 @@ export default function Workout() {
 		setIsTouched(true);
 		isTouchedRef.current = true;
 		timer.current = setTimeout(() => {
-			console.log("touched", isTouched);
+			console.log("touched start", isTouchedRef.current);
 			if (isTouchedRef.current) {
 				isLongTouched.current = true;
 				setExerciseModal(exercise);
@@ -147,12 +147,14 @@ export default function Workout() {
 	};
 
 	const handleTouchEnd = () => {
+		console.log("touched end", isTouchedRef.current);
 		setIsTouched(false);
 		isTouchedRef.current = false;
 		if (timer.current) {
 			clearTimeout(timer.current);
 			timer.current = null;
 		}
+		setExerciseModal(null);
 	};
 
 	const deleteExercise = () => {
@@ -228,7 +230,7 @@ export default function Workout() {
 														onTouchStart={() => handleTouchStart(exercise)} onTouchEnd={handleTouchEnd}
 														onMouseDown={() => handleTouchStart(exercise)} onMouseUp={handleTouchEnd}
 													>
-                                                    {isLongTouched.current && (
+                                                    {isTouched && isLongTouched.current && exerciseModal && (
 														<Modal 
 															open={isLongTouched.current} 
 															onClose={() => { isLongTouched.current = false; setExerciseModal(null); }}
