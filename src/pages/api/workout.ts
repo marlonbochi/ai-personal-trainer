@@ -12,7 +12,11 @@ if (!API_KEY) {
     throw new Error('GEMINI_API_KEY is not configured');
 }
 
-const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const API_URL = process.env.GEMINI_API_URL;
+if (!API_URL) {
+    console.error('GEMINI_API_URL is not set in environment variables');
+    throw new Error('GEMINI_API_URL is not configured');
+}
 
 interface GeminiRequest {
     contents: {
@@ -248,6 +252,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             }
         } catch (error) {
             console.error('Error generating workout plan:', error);
+			console.error('API Gemini falhou', {
+				error: error instanceof Error ? error.message : 'Erro desconhecido',
+				url: API_URL,
+				timestamp: new Date().toISOString()
+			});
             res.status(500).json({ error: 'Failed to generate workout plan' });
         }
     } else {

@@ -18,10 +18,6 @@ const nextConfig = {
     // Enable CSS optimizations
     optimizeCss: true,
   },
-  // Simple webpack configuration
-  webpack: (config) => {
-    return config;
-  },
   // Enable static exports for static site generation
   output: 'standalone',
   // Disable React's Strict Mode for development
@@ -31,7 +27,8 @@ const nextConfig = {
   // Disable TypeScript type checking during build
   typescript: {
     ignoreBuildErrors: true,
-  }
+  },
+  turbopack: {},
 };
 
-module.exports = withPWA(nextConfig);
+module.exports = process.env.NODE_ENV === 'development' ? nextConfig : withPWA(nextConfig);
