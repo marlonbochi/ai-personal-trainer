@@ -253,6 +253,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             }
         } catch (error) {
             console.error('Error generating workout plan:', error);
+			console.error('API Gemini falhou', {
+				error: error instanceof Error ? error.message : 'Erro desconhecido',
+				url: API_URL,
+				timestamp: new Date().toISOString()
+			});
             res.status(500).json({ error: 'Failed to generate workout plan' });
         }
     } else {

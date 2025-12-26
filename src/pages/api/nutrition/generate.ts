@@ -238,11 +238,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                 return res.status(200).json(responseData);
             } catch (parseError) {
                 console.error('Error parsing Gemini response:', parseError);
-                console.error('Raw response:', geminiResponseText);
                 throw new Error('Failed to parse Gemini API response');
             }
         } catch (error) {
             console.error('Error generating workout plan:', error);
+			console.error('API Gemini falhou', {
+				error: error instanceof Error ? error.message : 'Erro desconhecido',
+				url: API_URL,
+				timestamp: new Date().toISOString()
+			});
             res.status(500).json({ error: req.body.language === 'pt' ? 'Falha ao gerar o plano alimentar' : 'Failed to generate meal plan' });
         }
     } else {
