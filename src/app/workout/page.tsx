@@ -16,9 +16,10 @@ export default function Workout() {
     const [isMounted, setIsMounted] = useState(false);
 	const [isTouched, setIsTouched] = useState(false);
 	const isTouchedRef = useRef(false);
-	let isLongTouched = useRef(false);
+	const isLongTouched = useRef(false);
 	const [exerciseModal, setExerciseModal] = useState<any>(null);
-	let timer = useRef<NodeJS.Timeout | null>(null);
+	const [isReplacing, setIsReplacing] = useState(false);
+	const timer = useRef<NodeJS.Timeout | null>(null);
 
     // Function to load workout from localStorage
     const loadWorkout = useCallback(() => {
@@ -133,53 +134,95 @@ export default function Workout() {
         );
     }
 
-	const handleTouchStart = (exercise: any) => {
+	const handleTouchStart = (exercise: any, day: string) => {
 		setIsTouched(true);
 		isTouchedRef.current = true;
 		timer.current = setTimeout(() => {
-			console.log("touched start", isTouchedRef.current);
 			if (isTouchedRef.current) {
 				isLongTouched.current = true;
-				setExerciseModal(exercise);
-				console.log("long touched", isLongTouched.current);
+				setExerciseModal({ ...exercise, day });
 			}
 		}, 2000);
 	};
 
 	const handleTouchEnd = () => {
-		console.log("touched end", isTouchedRef.current);
 		setIsTouched(false);
 		isTouchedRef.current = false;
 		if (timer.current) {
 			clearTimeout(timer.current);
 			timer.current = null;
 		}
+		// Don't close modal if it was opened by long press
+		if (!isLongTouched.current) {
+			setExerciseModal(null);
+		}
+	};
+
+	const saveWorkoutToStorage = (updatedWorkout: any) => {
+		try {
+			localStorage.setItem('generatedWorkout', btoa(JSON.stringify(updatedWorkout)));
+		} catch (error) {
+			console.error('Error saving workout to storage:', error);
+		}
+	};
+
+	const closeModal = () => {
+		isLongTouched.current = false;
 		setExerciseModal(null);
+		setIsReplacing(false);
 	};
 
 	const deleteExercise = () => {
 		setWorkout((prevWorkout: any) => {
 			const newWorkout = { ...prevWorkout };
-			newWorkout[exerciseModal.day] = newWorkout[exerciseModal.day].filter(
-				(ex: any) => ex.id !== exerciseModal.id
+			const dayKey = exerciseModal.day;
+			newWorkout[dayKey] = newWorkout[dayKey].filter(
+				(_: any, index: number) => {
+					const exercises = prevWorkout[dayKey];
+					return exercises[index].name !== exerciseModal.name;
+				}
 			);
+			saveWorkoutToStorage(newWorkout);
 			return newWorkout;
 		});
-		setExerciseModal(null);
+		closeModal();
 	};
 
 	const replaceExercise = async () => {
+		if (!exerciseModal) return;
 
-		const data = await fetchWithValidation('/api/workout/edit', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(exerciseModal),
-		});
+		setIsReplacing(true);
 
-		setExerciseModal(null);
+		try {
+			const newExercise = await fetchWithValidation<{ name: string; description: string }>('/api/workout/edit', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					name: exerciseModal.name,
+					description: exerciseModal.description || '',
+					language,
+				}),
+			});
 
+			setWorkout((prevWorkout: any) => {
+				const newWorkout = { ...prevWorkout };
+				const dayKey = exerciseModal.day;
+				newWorkout[dayKey] = newWorkout[dayKey].map((ex: any) =>
+					ex.name === exerciseModal.name
+						? { name: newExercise.name, description: newExercise.description }
+						: ex
+				);
+				saveWorkoutToStorage(newWorkout);
+				return newWorkout;
+			});
+
+			closeModal();
+		} catch (error) {
+			console.error('Error replacing exercise:', error);
+			setIsReplacing(false);
+		}
 	};
 
     return (
@@ -227,32 +270,38 @@ export default function Workout() {
                                                     <div 
 														key={`${day}-${exIndex}`} 
 														className={`mb-6 select-none last:mb-0 ${isTouched ? 'active:scale-95 active:shadow-lg transition-transform duration-150' : ''}`} 
-														onTouchStart={() => handleTouchStart(exercise)} onTouchEnd={handleTouchEnd}
-														onMouseDown={() => handleTouchStart(exercise)} onMouseUp={handleTouchEnd}
+														onTouchStart={() => handleTouchStart(exercise, day)} onTouchEnd={handleTouchEnd}
+														onMouseDown={() => handleTouchStart(exercise, day)} onMouseUp={handleTouchEnd}
 													>
-                                                    {isTouched && isLongTouched.current && exerciseModal && (
+                                                    {exerciseModal && exerciseModal.name === exercise.name && (
 														<Modal 
-															open={isLongTouched.current} 
-															onClose={() => { isLongTouched.current = false; setExerciseModal(null); }}
+															open={true} 
+															onClose={closeModal}
 															title={exerciseModal.name}
 														>
 															{exerciseModal.description && (
 																<p className="text-gray-600 mt-2">{exerciseModal.description}</p>
 															)}
-															<div className="flex justify-end mt-4 space-x-2">
-																<button 
-																	className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors" 
-																	onClick={deleteExercise}
-																>
-																	{t('workout.deleteExercise')}
-																</button>
-																<button 
-																	className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
-																	onClick={replaceExercise}
-																>
-																	{t('workout.replaceExercise')}
-																</button>
-															</div>
+															{isReplacing ? (
+																<div className="flex justify-center mt-4 py-2">
+																	<div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
+																</div>
+															) : (
+																<div className="flex justify-end mt-4 space-x-2">
+																	<button 
+																		className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors" 
+																		onClick={deleteExercise}
+																	>
+																		{t('workout.deleteExercise')}
+																	</button>
+																	<button 
+																		className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+																		onClick={replaceExercise}
+																	>
+																		{t('workout.replaceExercise')}
+																	</button>
+																</div>
+															)}
 														</Modal>
                                                     )}
                                                         <h3 className="text-xl font-semibold text-gray-800">{exercise.name}</h3>

@@ -36,25 +36,55 @@ interface GeminiResponse {
 }
 
 interface WorkoutEditRequestBody {
-    nameWorkout: string;
-    descriptionWorkout: string;
+    name: string;
+    description: string;
     language: 'en' | 'pt';
 }
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === 'POST') {
 		const { 
-            nameWorkout = 'en',
-			descriptionWorkout = 'en',
+            name = '',
+			description = '',
 			language = 'en'
         } = req.body as WorkoutEditRequestBody;
 
+		if (!name) {
+			return res.status(400).json({ error: 'Exercise name is required' });
+		}
+
         const urlGemini = `${API_URL}`;
+
+		const prompt = language === 'pt'
+			? `Eu tenho o seguinte exercício no meu plano de treino:
+Nome: ${name}
+${description ? `Descrição: ${description}` : ''}
+
+Me sugira UM exercício similar/alternativo que trabalhe os mesmos grupos musculares.
+O exercício deve ser diferente do original mas com benefícios parecidos.
+
+Responda SOMENTE com um objeto JSON válido no seguinte formato (sem markdown, sem blocos de código):
+{
+  "name": "Nome do exercício",
+  "description": "Descrição detalhada com séries, repetições, tempo de descanso e dicas de execução"
+}`
+			: `I have the following exercise in my workout plan:
+Name: ${name}
+${description ? `Description: ${description}` : ''}
+
+Suggest ONE similar/alternative exercise that targets the same muscle groups.
+The exercise should be different from the original but with similar benefits.
+
+Respond ONLY with a valid JSON object in the following format (no markdown, no code blocks):
+{
+  "name": "Exercise name",
+  "description": "Detailed description with sets, reps, rest periods, and form tips"
+}`;
 
         try {
             const requestData: GeminiRequest = {
                 contents: [{
-                    parts: [{ text: `Replace for the same workout plan: ${nameWorkout}. ${descriptionWorkout}. ${language}` }]
+                    parts: [{ text: prompt }]
                 }]
             };
             const response = await axios.post<GeminiResponse>(
@@ -82,11 +112,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                     .trim();
 
                 const geminiResponse = JSON.parse(geminiResponseText);
-                // Ensure the response has the expected structure
-                const responseData = geminiResponse.workout || geminiResponse;
+                // Ensure the response has the expected structure with name and description
+                const exercise = geminiResponse.exercise || geminiResponse;
+                
+                if (!exercise.name) {
+                    throw new Error('Response missing exercise name');
+                }
 
-                // console.log('Sending response:', responseData);
-                return res.status(200).json(responseData);
+                return res.status(200).json({
+                    name: exercise.name,
+                    description: exercise.description || ''
+                });
             } catch (parseError) {
                 console.error('Error parsing Gemini response:', parseError);
                 console.error('Raw response:', geminiResponseText);
