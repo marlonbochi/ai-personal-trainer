@@ -26,9 +26,9 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-config" content="/icons/browserconfig.xml" />
-        <meta name="msapplication-TileColor" content="#3b82f6" />
+        <meta name="msapplication-TileColor" content="#C47243" />
         <meta name="msapplication-tap-highlight" content="no" />
-        <meta name="theme-color" content="#3b82f6" />
+        <meta name="theme-color" content="#FAF5EF" />
         
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
@@ -48,12 +48,12 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
         <link rel="apple-touch-startup-image" href="/splash/iphone6_splash.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
         <link rel="apple-touch-startup-image" href="/splash/iphoneplus_splash.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" />
       </head>
-      <body className="min-h-screen bg-background font-sans antialiased flex flex-col">
+      <body className="min-h-screen bg-warm-bg font-sans antialiased flex flex-col">
         <FontStyles />
         <Providers>
           <ProvidersWrapper>
             {!isHomePage && <Navbar />}
-            <main className={`flex-1 ${isHomePage ? 'min-h-screen' : ''}`}>
+            <main className={`flex-1 ${isHomePage ? 'min-h-screen' : 'pb-20'}`}>
               {children}
             </main>
             <PWAInstallWrapper />

@@ -28,7 +28,6 @@ export default function GenerateWorkoutPage() {
         gender: 'male' as 'male' | 'female'
     });
 
-    // Load saved form data from localStorage on component mount
     useEffect(() => {
         const savedData = localStorage.getItem('workoutPreferences');
         if (savedData) {
@@ -65,7 +64,7 @@ export default function GenerateWorkoutPage() {
                     : prev.selectedDays.filter(day => day !== value),
                 daysPerWeek: checked 
                     ? prev.daysPerWeek + 1 
-                    : Math.max(1, prev.daysPerWeek - 1) // Ensure at least 1 day is selected
+                    : Math.max(1, prev.daysPerWeek - 1)
             }));
         } else {
             setFormData(prev => ({
@@ -82,11 +81,9 @@ export default function GenerateWorkoutPage() {
         setIsSubmitting(true);
         
         try {
-            // Save form data to localStorage
             localStorage.setItem('workoutPreferences', JSON.stringify(formData));
             
             try {
-                // Call the workout API to generate the workout plan
                 const data = await fetchWithValidation('/api/workout', {
                     method: 'POST',
                     headers: {
@@ -110,10 +107,7 @@ export default function GenerateWorkoutPage() {
                     throw new Error('No data received from server');
                 }
                 
-                // Save the generated workout to localStorage
                 localStorage.setItem('generatedWorkout', btoa(JSON.stringify(data)));
-                
-                // Redirect to the workout page
                 router.push('/workout');
             } catch (error) {
                 console.error('Error generating workout:', error);
@@ -163,85 +157,83 @@ export default function GenerateWorkoutPage() {
     ];
 
     return (
-        <div className="min-h-screen py-8 relative">
+        <div className="min-h-screen bg-warm-bg py-6 relative">
             {/* Loading Overlay */}
             {isSubmitting && (
-                <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10">
+                <div className="absolute inset-0 bg-warm-bg/70 flex items-center justify-center z-10">
                     <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
-                        <p className="mt-4 text-gray-700">{t('workout.generating')}...</p>
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-terra-500 mx-auto"></div>
+                        <p className="mt-4 text-bark-600">{t('workout.generating')}...</p>
                     </div>
                 </div>
             )}
             
-            <div className="max-w-2xl mx-auto p-6 relative">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">
-                    {t('workout.customizePlan')}
-                </h1>
-                
-                <form onSubmit={handleSubmit} className="space-y-6 relative">
-                    {/* Disabled overlay when submitting */}
+            <div className="max-w-lg mx-auto px-4 relative">
+                <form onSubmit={handleSubmit} className="space-y-5 relative">
                     {isSubmitting && <div className="absolute inset-0 z-5"></div>}
+
                     {/* Age and Gender */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
-                                {t('workout.age')}
-                            </label>
-                            <select
-                                id="age"
-                                name="age"
-                                value={formData.age}
-                                onChange={handleChange}
-                                disabled={isSubmitting}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm disabled:opacity-75 disabled:bg-gray-50"
-                            >
-                                {Array.from({ length: 85 }, (_, i) => 15 + i).map(age => (
-                                    <option key={age} value={age}>
-                                        {age} {t('workout.yearsOld')}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                {t('workout.gender')}
-                            </label>
-                            <div className="mt-1 flex gap-4 mb-2 directionFlexColumn">
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        name="gender"
-                                        value="male"
-                                        checked={formData.gender === 'male'}
-                                        onChange={handleChange}
-                                        disabled={isSubmitting}
-                                        className="h-4 w-4 disabled:opacity-75 disabled:cursor-not-allowed"
-                                    />
-                                    <span className="ml-2">{t('workout.genderMale')}</span>
+                    <div className="bg-white rounded-2xl border border-warm-border p-4 space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="age" className="block text-sm font-medium text-bark-700 mb-1">
+                                    {t('workout.age')}
                                 </label>
-                                <label className="inline-flex items-center">
-                                    <input
-                                        type="radio"
-                                        name="gender"
-                                        value="female"
-                                        checked={formData.gender === 'female'}
-                                        onChange={handleChange}
-                                        disabled={isSubmitting}
-                                        className="h-4 w-4 disabled:opacity-75 disabled:cursor-not-allowed"
-                                    />
-                                    <span className="ml-2">{t('workout.genderFemale')}</span>
+                                <select
+                                    id="age"
+                                    name="age"
+                                    value={formData.age}
+                                    onChange={handleChange}
+                                    disabled={isSubmitting}
+                                    className="mt-1 block w-full rounded-xl border-warm-border shadow-sm focus:border-terra-500 focus:ring-terra-500 sm:text-sm disabled:opacity-75 disabled:bg-bark-50"
+                                >
+                                    {Array.from({ length: 85 }, (_, i) => 15 + i).map(age => (
+                                        <option key={age} value={age}>
+                                            {age} {t('workout.yearsOld')}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-bark-700 mb-1">
+                                    {t('workout.gender')}
                                 </label>
+                                <div className="mt-1 flex gap-4 mb-2 directionFlexColumn">
+                                    <label className="inline-flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value="male"
+                                            checked={formData.gender === 'male'}
+                                            onChange={handleChange}
+                                            disabled={isSubmitting}
+                                            className="h-4 w-4 disabled:opacity-75 disabled:cursor-not-allowed"
+                                        />
+                                        <span className="ml-2 text-bark-600">{t('workout.genderMale')}</span>
+                                    </label>
+                                    <label className="inline-flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value="female"
+                                            checked={formData.gender === 'female'}
+                                            onChange={handleChange}
+                                            disabled={isSubmitting}
+                                            className="h-4 w-4 disabled:opacity-75 disabled:cursor-not-allowed"
+                                        />
+                                        <span className="ml-2 text-bark-600">{t('workout.genderFemale')}</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Fitness Level */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="bg-white rounded-2xl border border-warm-border p-4">
+                        <label className="block text-sm font-medium text-bark-700 mb-2">
                             {t('workout.fitnessLevel')}
                         </label>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-3">
                             {fitnessLevels.map(level => (
                                 <label key={level.value} className="flex items-center">
                                     <input
@@ -253,15 +245,15 @@ export default function GenerateWorkoutPage() {
                                         disabled={isSubmitting}
                                         className="h-4 w-4 disabled:opacity-75 disabled:cursor-not-allowed"
                                     />
-                                    <span className="ml-2">{level.label}</span>
+                                    <span className="ml-2 text-bark-600">{level.label}</span>
                                 </label>
                             ))}
                         </div>
                     </div>
 
                     {/* Workout Goal */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="bg-white rounded-2xl border border-warm-border p-4">
+                        <label className="block text-sm font-medium text-bark-700 mb-2">
                             {t('workout.workoutGoal')}
                         </label>
                         <div className="grid grid-cols-2 gap-3">
@@ -276,15 +268,15 @@ export default function GenerateWorkoutPage() {
                                         disabled={isSubmitting}
                                         className="h-4 w-4 disabled:opacity-75 disabled:cursor-not-allowed"
                                     />
-                                    <span className="ml-2">{goal.label}</span>
+                                    <span className="ml-2 text-bark-600">{goal.label}</span>
                                 </label>
                             ))}
                         </div>
                     </div>
 
                     {/* Workout Duration */}
-                    <div>
-                        <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="bg-white rounded-2xl border border-warm-border p-4">
+                        <label htmlFor="duration" className="block text-sm font-medium text-bark-700 mb-2">
                             {t('workout.workoutDuration')}
                         </label>
                         <select
@@ -293,7 +285,7 @@ export default function GenerateWorkoutPage() {
                             value={formData.duration}
                             onChange={handleChange}
                             disabled={isSubmitting}
-                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base sm:text-sm disabled:opacity-75 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base sm:text-sm rounded-xl border-warm-border disabled:opacity-75 disabled:bg-bark-50 disabled:cursor-not-allowed"
                         >
                             {durations.map(duration => (
                                 <option key={duration.value} value={duration.value}>
@@ -304,8 +296,8 @@ export default function GenerateWorkoutPage() {
                     </div>
 
                     {/* Days of the Week */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="bg-white rounded-2xl border border-warm-border p-4">
+                        <label className="block text-sm font-medium text-bark-700 mb-2">
                             {t('workout.daysPerWeek')} ({formData.selectedDays.length} {t('workout.days').toLowerCase()})
                         </label>
                         <div className="grid grid-cols-2 gap-2">
@@ -328,15 +320,15 @@ export default function GenerateWorkoutPage() {
                                         disabled={isSubmitting}
                                         className="h-4 w-4 disabled:opacity-75 disabled:cursor-not-allowed"
                                     />
-                                    <span className="ml-2">{day.label}</span>
+                                    <span className="ml-2 text-bark-600">{day.label}</span>
                                 </label>
                             ))}
                         </div>
                     </div>
 
                     {/* Workout Type */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="bg-white rounded-2xl border border-warm-border p-4">
+                        <label className="block text-sm font-medium text-bark-700 mb-2">
                             {t('workout.whereWillYouTrain')}
                         </label>
                         <div className="space-y-2">
@@ -353,17 +345,17 @@ export default function GenerateWorkoutPage() {
                                                 trainerLocation: [option.value]
                                             }));
                                         }}
-                                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+                                        className="h-4 w-4 text-terra-500 focus:ring-terra-500"
                                     />
-                                    <span className="ml-2">{option.label}</span>
+                                    <span className="ml-2 text-bark-600">{option.label}</span>
                                 </label>
                             ))}
                         </div>
                     </div>
 
                     {/* Focus Areas */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="bg-white rounded-2xl border border-warm-border p-4">
+                        <label className="block text-sm font-medium text-bark-700 mb-2">
                             {t('workout.specificFocusAreas')}
                         </label>
                         <div className="grid grid-cols-2 gap-2">
@@ -378,15 +370,15 @@ export default function GenerateWorkoutPage() {
                                         disabled={isSubmitting}
                                         className="h-4 w-4 disabled:opacity-75 disabled:cursor-not-allowed"
                                     />
-                                    <span className="ml-2">{area.label}</span>
+                                    <span className="ml-2 text-bark-600">{area.label}</span>
                                 </label>
                             ))}
                         </div>
                     </div>
 
                     {/* Injuries */}
-                    <div>
-                        <label htmlFor="injuries" className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="bg-white rounded-2xl border border-warm-border p-4">
+                        <label htmlFor="injuries" className="block text-sm font-medium text-bark-700 mb-2">
                             {t('workout.injuries')}
                         </label>
                         <input
@@ -397,13 +389,13 @@ export default function GenerateWorkoutPage() {
                             onChange={handleChange}
                             disabled={isSubmitting}
                             placeholder={t('workout.injuriesPlaceholder')}
-                            className="mt-1 block w-full py-2 px-3 sm:text-sm disabled:opacity-75 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                            className="mt-1 block w-full py-2 px-3 sm:text-sm rounded-xl border-warm-border disabled:opacity-75 disabled:bg-bark-50 disabled:cursor-not-allowed"
                         />
                     </div>
 
                     {/* Additional Notes */}
-                    <div>
-                        <label htmlFor="additionalNotes" className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="bg-white rounded-2xl border border-warm-border p-4">
+                        <label htmlFor="additionalNotes" className="block text-sm font-medium text-bark-700 mb-2">
                             {t('workout.additionalNotes')}
                         </label>
                         <textarea
@@ -414,20 +406,20 @@ export default function GenerateWorkoutPage() {
                             onChange={handleChange}
                             disabled={isSubmitting}
                             placeholder={t('workout.additionalNotesPlaceholder')}
-                            className="mt-1 block w-full py-2 px-3 sm:text-sm disabled:opacity-75 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                            className="mt-1 block w-full py-2 px-3 sm:text-sm rounded-xl border-warm-border disabled:opacity-75 disabled:bg-bark-50 disabled:cursor-not-allowed"
                         />
                     </div>
 
                     {/* Buttons */}
-                    <div className="pt-4 flex space-x-4">
+                    <div className="pt-2 flex gap-3">
                         <button
                             type="button"
                             onClick={() => !isSubmitting && router.push('/workout')}
                             disabled={isSubmitting}
-                            className={`flex-1 py-3 px-4 border rounded-md shadow-sm text-sm font-medium ${
+                            className={`flex-1 py-3 px-4 rounded-2xl text-sm font-medium transition-colors ${
                                 isSubmitting 
-                                    ? 'border-gray-200 text-gray-400 bg-white cursor-not-allowed' 
-                                    : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+                                    ? 'border-2 border-warm-border text-bark-300 bg-white cursor-not-allowed' 
+                                    : 'border-2 border-warm-border-dark text-bark-600 bg-white hover:bg-bark-50'
                             }`}
                         >
                             {t('workout.cancelButton')}
@@ -435,10 +427,10 @@ export default function GenerateWorkoutPage() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className={`flex-1 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                            className={`flex-1 py-3 px-4 rounded-2xl text-sm font-medium text-white transition-colors shadow-md ${
                                 isSubmitting
-                                    ? 'bg-indigo-400 cursor-not-allowed'
-                                    : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+                                    ? 'bg-terra-300 cursor-not-allowed'
+                                    : 'bg-terra-500 hover:bg-terra-600'
                             }`}
                         >
                             {isSubmitting ? t('workout.generating') : t('workout.generatePlan')}
