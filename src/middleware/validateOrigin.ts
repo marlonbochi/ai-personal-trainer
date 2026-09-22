@@ -1,29 +1,54 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-// List of allowed origins (add your production domain here)
-const ALLOWED_ORIGINS = [
-  'http://localhost:3000',
-  'https://aitrainer.marlonbochi.com.br',
-  // Add other domains as needed
-];
+// The production domain is always allowed; NEXT_PUBLIC_APP_URL covers
+// whatever origin the app is actually deployed/previewed at.
+const PRODUCTION_ORIGIN = 'https://aitrainer.marlonbochi.com.br';
 
-function validateOrigin(req: NextApiRequest) {
+function getAllowedOrigins(): string[] {
+  const origins = new Set([PRODUCTION_ORIGIN]);
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    origins.add(process.env.NEXT_PUBLIC_APP_URL);
+  }
+  return Array.from(origins);
+}
+
+function originFromUrl(value: string): string | null {
+  try {
+    return new URL(value).origin;
+  } catch {
+    return null;
+  }
+}
+
+function validateOrigin(req: NextApiRequest): boolean {
+  const allowedOrigins = getAllowedOrigins();
+
+  // Sec-Fetch-Site is set by the browser itself and cannot be overridden by
+  // page JavaScript, so an explicit cross-site/cross-origin value is a
+  // reliable signal to reject outright, regardless of what Origin/Referer say.
+  const secFetchSite = req.headers['sec-fetch-site'];
+  if (secFetchSite && secFetchSite !== 'same-origin' && secFetchSite !== 'none') {
+    return false;
+  }
+
+  // Modern browsers always attach Origin on state-changing requests
+  // (POST/PUT/DELETE), same-origin or not. Require it and match it exactly -
+  // no "missing header = allowed" fallback.
   const origin = req.headers.origin;
-  const referer = req.headers.referer;
-  
-  // Get the host from environment variables or use a default
-  const host = process.env.NEXT_PUBLIC_APP_URL || 'https://aitrainer.marlonbochi.com.br';
-  
-  // Check if the request is coming from the same origin
-  const isSameOrigin = !origin || origin === host;
-  
-  // Check if the referer is from an allowed origin
-  const isRefererAllowed = !referer || 
-    ALLOWED_ORIGINS.some(allowed => 
-      referer.startsWith(allowed)
-    );
+  if (origin) {
+    return allowedOrigins.includes(origin);
+  }
 
-  return isSameOrigin && isRefererAllowed;
+  // No Origin header at all: fall back to a strict Referer check instead of
+  // letting the request through. Compare the actual origin, not a string
+  // prefix, so "https://aitrainer.marlonbochi.com.br.evil.com" can't pass.
+  const referer = req.headers.referer;
+  if (!referer) {
+    return false;
+  }
+
+  const refererOrigin = originFromUrl(referer);
+  return refererOrigin !== null && allowedOrigins.includes(refererOrigin);
 }
 
 type ApiHandler = (req: NextApiRequest, res: NextApiResponse) => Promise<void> | void;
@@ -35,9 +60,7 @@ export function withOriginValidation(handler: ApiHandler): ApiHandler {
       return handler(req, res);
     }
 
-    const isValid = validateOrigin(req);
-    
-    if (!isValid) {
+    if (!validateOrigin(req)) {
       return res.status(403).json({ error: 'Forbidden - Invalid origin' });
     }
 
