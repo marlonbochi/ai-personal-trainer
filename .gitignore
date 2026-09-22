@@ -40,6 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# next-pwa / workbox generated service worker (rebuilt on every production build)
+/public/sw.js
+/public/workbox-*.js
+
 # claude code / spec-kit local state (not meant to be shared)
 .claude/settings.local.json
 .specify/memory/feature.json
