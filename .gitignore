@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code / spec-kit local state (not meant to be shared)
+.claude/settings.local.json
+.specify/memory/feature.json
+.specify/**/local-config.yml
