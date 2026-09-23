@@ -1,38 +1,117 @@
-You can check the code running on [https://aitrainer.marlonbochi.com.br](https://aitrainer.marlonbochi.com.br).
+# 🏋️ AI Personal Trainer
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+An AI-powered app that generates a personalized weekly **workout routine** and **meal plan** from a short questionnaire. Fill in your profile and goals, and the app asks the [Gemini API](https://ai.google.dev/) to put together a plan tailored to you.
 
-## Getting Started
+**Live app:** [aitrainer.marlonbochi.com.br](https://aitrainer.marlonbochi.com.br)
 
-First, run the development server:
+## How it works
+
+The app has two independent generators, each backed by its own form and API route:
+
+### 💪 Workout plan (`/generate-workout`)
+Answer a few questions and get a day-by-day training split:
+- Age and gender
+- Fitness level (beginner / intermediate / advanced)
+- Main goal (weight loss, muscle gain, endurance, strength)
+- Session duration (15 / 30 / 45 / 60 min)
+- Training days of the week
+- Where you'll train (gym or home)
+- Specific focus areas (chest, back, legs, shoulders, arms, core, cardio)
+- Injuries or limitations
+- Any additional notes
+
+The result is a collapsible weekly schedule with exercises and descriptions per day, generated at [`/api/workout`](src/pages/api/workout.ts).
+
+### 🥗 Nutrition plan (`/generate-nutrition`)
+A similar questionnaire tailored to diet:
+- Age and gender
+- Diet goal (weight loss, muscle gain, maintenance, endurance)
+- Daily calorie target
+- Weekly grocery budget
+- Meals per day
+- Additional notes (restrictions, allergies, preferences, etc.)
+
+The result is a full week of meals (breakfast, lunch, dinner, snacks) with ingredients, preparation steps, and macros, generated at [`/api/nutrition`](src/pages/api/nutrition.ts).
+
+All the narrowing questions exist to give the AI enough context to produce a plan that actually fits the user, instead of a generic one-size-fits-all routine.
+
+Both forms remember your last answers (`localStorage`) and the generated plans are also kept client-side, so you can revisit `/workout` and `/nutrition` without regenerating.
+
+## Tech stack
+
+- **[Next.js](https://nextjs.org)** (App Router + a couple of Pages API routes) with **React 19** and **TypeScript**
+- **[Tailwind CSS](https://tailwindcss.com)** for styling
+- **[Gemini API](https://ai.google.dev/)** for plan generation — chosen because it had a free tier suitable for this at the time
+- **PWA support** ([`next-pwa`](https://github.com/shadowwalker/next-pwa) + Workbox) — installable, works offline for cached pages
+- **i18n** — English and Portuguese, see [`src/lib/i18n`](src/lib/i18n)
+- Deployed on **[Vercel](https://vercel.com)**
+
+## Getting started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org) 22+
+- A [Gemini API key](https://ai.google.dev/) (the app won't be able to generate plans without one)
+
+### 1. Clone and configure environment variables
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/marlonbochi/ai-personal-trainer.git
+cd ai-personal-trainer
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Fill in `.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Description |
+| --- | --- |
+| `GEMINI_API_KEY` | Your Gemini API key |
+| `GEMINI_API_URL` | Gemini endpoint used to generate content |
+| `NEXT_PUBLIC_APP_URL` | Public base URL of the app (defaults to `http://localhost:3000` locally) |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 2. Run it
 
-## Learn More
+You can run the project either directly with Node or with Docker — pick whichever you prefer.
 
-To learn more about Next.js, take a look at the following resources:
+#### Option A — Node
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm install
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000).
 
-## Deploy on Vercel
+#### Option B — Docker (recommended for a no-hassle local setup)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+No need to install Node or run a build yourself — this spins up a dev server with hot reload inside a container:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+docker compose up
+```
+
+Open [http://localhost:3001](http://localhost:3001) (mapped to the container's port 3000; edit the port in [`docker-compose.yml`](docker-compose.yml) if it clashes with something else you have running).
+
+Stop it with:
+
+```bash
+docker compose down
+```
+
+## Project structure
+
+```
+src/
+├── app/                  # Pages (App Router): home, workout, nutrition, generators, about
+├── components/           # Navbar, PWA install prompt, etc.
+├── lib/
+│   ├── api.ts            # fetch wrapper used by the client forms
+│   └── i18n/              # translations (en/pt) and language context
+├── middleware/            # origin validation middleware
+├── models/                 # shared types (e.g. nutrition week plan)
+└── pages/api/              # /api/workout and /api/nutrition (Gemini calls)
+```
+
+## License
+
+Personal project by [Marlon Bochi](https://marlonbochi.com.br). No license file yet — ask before reusing.

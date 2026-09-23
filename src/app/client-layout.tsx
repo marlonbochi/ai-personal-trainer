@@ -48,7 +48,7 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
         <link rel="apple-touch-startup-image" href="/splash/iphone6_splash.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
         <link rel="apple-touch-startup-image" href="/splash/iphoneplus_splash.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" />
       </head>
-      <body className="min-h-screen bg-warm-bg font-sans antialiased flex flex-col">
+      <body className="min-h-screen bg-warm-bg font-sans antialiased flex flex-col" suppressHydrationWarning>
         <FontStyles />
         <Providers>
           <ProvidersWrapper>
