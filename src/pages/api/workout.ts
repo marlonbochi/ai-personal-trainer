@@ -40,7 +40,7 @@ interface WorkoutRequestBody {
     language?: 'en' | 'pt';
     fitnessLevel?: 'beginner' | 'intermediate' | 'advanced';
     goal?: 'weight_loss' | 'muscle_gain' | 'endurance' | 'strength';
-    duration?: '15_min' | '30_min' | '45_min' | '60_min';
+    duration?: '15_min' | '30_min' | '45_min' | '60_min' | '75_min' | '90_min' | '120_min';
     daysPerWeek?: number;
     selectedDays?: string[];
     trainerLocation?: string[];
@@ -126,8 +126,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
             : `Goal: ${goal.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}.`;
             
         const durationPrompt = language === 'pt'
-            ? `Duração do treino: ${duration.replace('_', ' ')}.`
-            : `Workout duration: ${duration.replace('_', ' ')}.`;
+            ? `Duração do treino: ${duration.replace('_', ' ')}. Ajuste o volume (número de exercícios, séries e circuitos/supersets) para preencher esse tempo - uma sessão de 90-120 minutos deve ter bem mais exercícios do que uma de 15-30 minutos.`
+            : `Workout duration: ${duration.replace('_', ' ')}. Scale the volume (number of exercises, sets, and circuits/supersets) to fill that time - a 90-120 minute session should include noticeably more exercises than a 15-30 minute one.`;
             
         const trainerLocationPrompt = language === 'pt'
             ? `Eu irei treinar em ${trainerLocation.join(', ')}.`
@@ -164,25 +164,30 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         ${injuriesPrompt}
         ${notesPrompt}
 
-        ${language === 'pt' 
-            ? 'Dias de treino: ' + selectedWeekdays.join(', ') + '\nDias de descanso: ' + restDays.join(', ')
-            : 'Workout days: ' + selectedWeekdays.join(', ') + '\nRest days: ' + restDays.join(', ')
+        ${language === 'pt'
+            ? 'Dias de treino: ' + selectedWeekdays.join(', ') + '\nDias de descanso: ' + (restDays.length > 0 ? restDays.join(', ') : 'Nenhum - a pessoa optou por treinar em todos os dias disponíveis, sem folga.')
+            : 'Workout days: ' + selectedWeekdays.join(', ') + '\nRest days: ' + (restDays.length > 0 ? restDays.join(', ') : 'None - the person chose to train on every available day, with no day off.')
         }
 
         ${language === 'pt'
-            ? 'A resposta deve ser um objeto JSON válido onde cada chave é um dia da semana e o valor é uma matriz de exercícios para esse dia ou uma mensagem de dia de descanso.\n            \nPara dias de treino, inclua uma matriz de exercícios onde cada exercício tem um nome e descrição.\nPara dias de descanso, inclua uma mensagem de dia de descanso.\n\nPara cada exercício, forneça instruções detalhadas, incluindo séries, repetições, períodos de descanso e dicas de forma adequada.\nO treino deve ser apropriado para o nível de condicionamento físico e objetivo especificados.'
-            : 'The response should be a valid JSON object where each key is a weekday and the value is either an array of exercises for that day or a rest day message.\n            \nFor workout days, include an array of exercises where each exercise has a name and description.\nFor rest days, include a rest day message.\n\nFor each exercise, provide detailed instructions including sets, reps, rest periods, and proper form tips.\nThe workout should be appropriate for the specified fitness level and goal.'
+            ? `REGRA OBRIGATÓRIA: TODOS os dias listados em "Dias de treino" (${selectedWeekdays.join(', ')}) DEVEM receber uma matriz de exercícios de verdade. NUNCA atribua uma mensagem de dia de descanso a um desses dias, mesmo que sejam muitos dias seguidos ou a semana inteira - a pessoa já escolheu explicitamente treinar nesses dias e não quer folga neles. A mensagem de dia de descanso só pode ser usada nos dias listados em "Dias de descanso" (se houver). Em vez de inserir descanso nos dias de treino, equilibre a carga dividindo o treino por grupos musculares ou tipo de treino ao longo da semana (ex: superior/inferior, push/pull/pernas, corpo inteiro alternado) para que cada grupo muscular tenha recuperação adequada através do próprio revezamento, não pela ausência de treino.`
+            : `MANDATORY RULE: EVERY day listed in "Workout days" (${selectedWeekdays.join(', ')}) MUST receive a real array of exercises. NEVER assign a rest day message to one of those days, even if it's many days in a row or the entire week - the person has already explicitly chosen to train on those days and does not want a day off on them. The rest day message may only be used for days listed in "Rest days" (if any). Instead of inserting rest on a training day, balance the load by splitting the routine across muscle groups or workout types throughout the week (e.g. upper/lower body, push/pull/legs, alternating full body) so each muscle group gets adequate recovery through the rotation itself, not through skipping a day.`
         }
 
         ${language === 'pt'
-            ? 'Exemplo de formato:'
-            : 'Example format:'
+            ? 'A resposta deve ser um objeto JSON válido onde cada chave é um dia da semana. Para os dias em "Dias de treino", o valor é sempre uma matriz de exercícios (nunca uma string). Para os dias em "Dias de descanso" (se houver), o valor é uma mensagem de dia de descanso.\n            \nPara cada exercício, forneça instruções detalhadas, incluindo séries, repetições, períodos de descanso e dicas de forma adequada.\nO treino deve ser apropriado para o nível de condicionamento físico e objetivo especificados.'
+            : 'The response should be a valid JSON object where each key is a weekday. For days in "Workout days", the value is always an array of exercises (never a string). For days in "Rest days" (if any), the value is a rest day message.\n            \nFor each exercise, provide detailed instructions including sets, reps, rest periods, and proper form tips.\nThe workout should be appropriate for the specified fitness level and goal.'
+        }
+
+        ${language === 'pt'
+            ? 'Exemplo de formato (todos os dias abaixo são exemplos de dias de TREINO - use este formato de matriz para cada dia em "Dias de treino"):'
+            : 'Example format (all days below are WORKOUT day examples - use this array format for every day in "Workout days"):'
         }
         {
             "${language === 'pt' ? 'segunda' : 'monday'}": [
                 {
                     "name": "${language === 'pt' ? 'Agachamento' : 'Squat'}",
-                    "description": "${language === 'pt' 
+                    "description": "${language === 'pt'
                         ? '3 séries de 12 repetições com 60 segundos de descanso entre as séries. Mantenha as costas retas e desça até as coxas ficarem paralelas ao chão.'
                         : '3 sets of 12 reps with 60 seconds rest between sets. Keep your back straight and lower until your thighs are parallel to the ground.'
                     }"
@@ -195,12 +200,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
                     }"
                 }
             ],
-            "${language === 'pt' ? 'terca' : 'tuesday'}": "${language === 'pt' 
-                ? 'Dia de descanso - Permita que seus músculos se recuperem' 
-                : 'Rest day - Allow your muscles to recover'}",
-            "${language === 'pt' ? 'quarta' : 'wednesday'}": [
-                // Mais exercícios...
+            "${language === 'pt' ? 'terca' : 'tuesday'}": [
+                // ${language === 'pt' ? 'Outro dia de treino, com foco em grupos musculares diferentes de segunda-feira...' : 'Another training day, focusing on different muscle groups than Monday...'}
             ]
+        }
+        ${language === 'pt'
+            ? `Se houver dias em "Dias de descanso", use este formato apenas para eles: "${restDays[0] ?? 'sabado'}": "Dia de descanso - Permita que seus músculos se recuperem"`
+            : `If there are any days in "Rest days", use this format only for them: "${restDays[0] ?? 'saturday'}": "Rest day - Allow your muscles to recover"`
         }
 
         ${language === 'pt'

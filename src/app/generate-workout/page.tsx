@@ -7,7 +7,7 @@ import { fetchWithValidation } from '@/lib/api';
 
 type FitnessLevel = 'beginner' | 'intermediate' | 'advanced';
 type WorkoutGoal = 'weight_loss' | 'muscle_gain' | 'endurance' | 'strength';
-type WorkoutDuration = '15_min' | '30_min' | '45_min' | '60_min';
+type WorkoutDuration = '15_min' | '30_min' | '45_min' | '60_min' | '75_min' | '90_min' | '120_min';
 type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
 
 export default function GenerateWorkoutPage() {
@@ -92,11 +92,12 @@ export default function GenerateWorkoutPage() {
                     body: JSON.stringify({
                         language,
                         fitnessLevel: formData.fitnessLevel,
-                        workoutDays: formData.selectedDays,
-                        workoutDuration: formData.duration,
-                        fitnessGoals: [formData.goal],
+                        goal: formData.goal,
+                        duration: formData.duration,
+                        selectedDays: formData.selectedDays,
                         trainerLocation: formData.trainerLocation,
-                        focusAreas: formData.specificFocusAreas,
+                        specificFocusAreas: formData.specificFocusAreas,
+                        injuries: formData.injuries,
                         additionalNotes: formData.additionalNotes,
                         age: formData.age,
                         gender: formData.gender
@@ -138,7 +139,10 @@ export default function GenerateWorkoutPage() {
         { value: '15_min', label: '15 min' },
         { value: '30_min', label: '30 min' },
         { value: '45_min', label: '45 min' },
-        { value: '60_min', label: '60 min' }
+        { value: '60_min', label: '60 min' },
+        { value: '75_min', label: '75 min' },
+        { value: '90_min', label: '90 min' },
+        { value: '120_min', label: '120 min' }
     ];
 
     const workoutTypeOptions = [
