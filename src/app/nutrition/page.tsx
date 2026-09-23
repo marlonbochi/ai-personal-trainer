@@ -7,8 +7,6 @@ import { Pencil } from 'lucide-react';
 import WeekPlan from '@/models/nutrition';
 import Link from 'next/link';
 
-type DietGoal = 'weight_loss' | 'muscle_gain' | 'maintenance' | 'endurance';
-
 const DAY_ABBR: Record<string, Record<string, string>> = {
     pt: { monday: 'Seg', tuesday: 'Ter', wednesday: 'Qua', thursday: 'Qui', friday: 'Sex', saturday: 'Sáb', sunday: 'Dom' },
     en: { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' },
@@ -20,18 +18,6 @@ export default function NutritionPage() {
     const [plan, setPlan] = useState<WeekPlan | null>(null);
     const [isMounted, setIsMounted] = useState(false);
     const [selectedDay, setSelectedDay] = useState<string | null>(null);
-	const [nutritionPreferences, setNutritionPreferences] = useState({
-        dietGoal: 'maintenance' as DietGoal,
-        caloriesPerDay: 2000,
-        budgetPerWeek: 100,
-        mealsPerDay: 3,
-        dietaryRestrictions: [] as string[],
-        allergies: [] as string[],
-        preferredCuisines: [] as string[],
-        additionalNotes: '',
-        age: 30,
-        gender: 'male'
-    });
 
     useEffect(() => {
         setIsMounted(true);
@@ -42,12 +28,6 @@ export default function NutritionPage() {
             const firstDay = Object.keys(parsed.days)[0];
             if (firstDay) setSelectedDay(firstDay);
         }
-
-		const nutritionPreferences = localStorage.getItem('nutritionPreferences');
-		if (nutritionPreferences) {
-			setNutritionPreferences(JSON.parse(nutritionPreferences));
-		}
-		
     }, []);
 
     const getDayAbbr = (day: string): string => {
