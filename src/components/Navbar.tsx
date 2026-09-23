@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
 import { Language } from '@/lib/i18n/config';
-import { Menu, X, Globe, Dumbbell, UtensilsCrossed, BarChart3, UserCircle, ArrowLeft } from 'lucide-react';
+import { Menu, X, Globe, Dumbbell, UtensilsCrossed, UserCircle, ArrowLeft } from 'lucide-react';
 
 export default function Navbar() {
   const { t, language, setLanguage } = useTranslation();

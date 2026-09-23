@@ -6,8 +6,6 @@ import { Pencil } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
 import { Language } from '@/lib/i18n/config';
 
-const DAY_KEYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-
 const DAY_ABBR: Record<string, Record<string, string>> = {
     pt: { monday: 'Seg', tuesday: 'Ter', wednesday: 'Qua', thursday: 'Qui', friday: 'Sex', saturday: 'Sáb', sunday: 'Dom' },
     en: { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' },

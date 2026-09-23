@@ -109,3 +109,15 @@
 .directionFlexColumn {
 	flex-direction: column;
 }
+
+/* Used by the horizontal day-pill selectors on the workout/nutrition pages.
+   Not a Tailwind utility (no scrollbar plugin is installed), so it's defined
+   here directly instead of pulling in a dependency for one class. */
+.scrollbar-hide {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+	display: none;
+}
