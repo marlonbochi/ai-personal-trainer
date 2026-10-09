@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      # Dummy values: API routes read these at import time, so the build needs
+      # them to exist. Real calls to Gemini are never made in CI.
+      GEMINI_API_KEY: ci-dummy-key
+      GEMINI_API_URL: https://example.invalid/gemini
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # --ignore-scripts: `postinstall` runs a full build; the build step below does that once.
+      - run: npm ci --ignore-scripts
+      - name: Unit tests
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Integration tests (production server)
+        run: npm run test:integration
