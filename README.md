@@ -13,7 +13,7 @@ Answer a few questions and get a day-by-day training split:
 - Age and gender
 - Fitness level (beginner / intermediate / advanced)
 - Main goal (weight loss, muscle gain, endurance, strength)
-- Session duration (15 / 30 / 45 / 60 min)
+- Session duration (15 / 30 / 45 / 60 / 75 / 90 / 120 min)
 - Training days of the week
 - Where you'll train (gym or home)
 - Specific focus areas (chest, back, legs, shoulders, arms, core, cardio)
@@ -21,6 +21,8 @@ Answer a few questions and get a day-by-day training split:
 - Any additional notes
 
 The result is a collapsible weekly schedule with exercises and descriptions per day, generated at [`/api/workout`](src/pages/api/workout.ts).
+
+**Editing exercises** (on `/workout`): swipe an exercise left to reveal two actions. The trash icon removes it (after a confirmation) and only touches your browser's localStorage. The pencil icon asks Gemini for a replacement that targets the same muscle group, optionally using a reason you type (e.g. "no machine available"), via [`/api/replace-exercise`](src/pages/api/replace-exercise.ts).
 
 ### 🥗 Nutrition plan (`/generate-nutrition`)
 A similar questionnaire tailored to diet:
@@ -98,18 +100,30 @@ Stop it with:
 docker compose down
 ```
 
+## Testing
+
+```bash
+npm test                  # unit tests (vitest, files in tests/)
+npm run build
+npm run test:integration  # starts the production build and checks origin validation + routes
+```
+
+The same steps run in CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) on every push to `main` and every pull request. New features are specified in [`specs/`](specs/) following Spec Kit.
+
 ## Project structure
 
 ```
 src/
 ├── app/                  # Pages (App Router): home, workout, nutrition, generators, about
-├── components/           # Navbar, PWA install prompt, etc.
+├── components/           # Navbar, PWA install prompt, swipeable exercise row, dialogs
 ├── lib/
 │   ├── api.ts            # fetch wrapper used by the client forms
 │   └── i18n/              # translations (en/pt) and language context
 ├── middleware/            # origin validation middleware
 ├── models/                 # shared types (e.g. nutrition week plan)
-└── pages/api/              # /api/workout and /api/nutrition (Gemini calls)
+└── pages/api/              # /api/workout, /api/nutrition, /api/replace-exercise (Gemini calls)
+tests/                      # vitest unit tests
+specs/                      # Spec Kit feature specs (spec, plan, tasks)
 ```
 
 ## License

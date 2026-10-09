@@ -1,6 +1,6 @@
 <!--
 Sync Impact Report
-- Version change: (none) → 1.0.0 (initial ratification)
+- Version change: 1.0.0 → 1.1.0 (added "New features" rule to Development Workflow: Spec Kit + tests)
 - Modified principles: n/a (new document)
 - Added sections:
   - Core Principles: I. Server-Only Secrets, II. Origin-Locked Public API,
@@ -122,6 +122,10 @@ a partial addition in only one language is a regression, not a shortcut.
   update it in Vercel (marked Sensitive) and in local `.env.local`, redeploy
   and verify, and only then revoke the old credential at the source
   (Google AI Studio).
+- **New features**: every new feature MUST start from a Spec Kit spec in
+  `specs/NNN-feature-name/` (`spec.md`, `plan.md`, `tasks.md`) on its own branch,
+  ship with vitest tests (`npm test`), and follow the `new-feature` skill
+  (`.claude/skills/new-feature/SKILL.md`).
 - **Commits**: only create git commits when the user explicitly asks for one
   in that turn; a prior request to commit does not carry forward.
 - **Security-relevant changes** (origin validation, secret handling, env var
@@ -140,4 +144,4 @@ PATCH for wording/clarification only. Any change touching a Core Principle
 MUST state, in the Sync Impact Report, whether downstream Spec Kit templates
 (`plan-template.md`, `spec-template.md`, `tasks-template.md`) need review.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-09-22
+**Version**: 1.1.0 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-09-24

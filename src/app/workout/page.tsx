@@ -4,7 +4,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Pencil } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
-import { Language } from '@/lib/i18n/config';
+import SwipeableExercise from '@/components/SwipeableExercise';
+import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog';
+import ReplaceExerciseSheet from '@/components/ReplaceExerciseSheet';
+import { parseStoredWorkout, serializeWorkout, removeExercise, replaceExercise, WorkoutPlan } from '@/lib/workoutEdit';
 
 const DAY_ABBR: Record<string, Record<string, string>> = {
     pt: { monday: 'Seg', tuesday: 'Ter', wednesday: 'Qua', thursday: 'Qui', friday: 'Sex', saturday: 'Sáb', sunday: 'Dom' },
@@ -18,32 +21,17 @@ export default function Workout() {
     const [hasCheckedWorkout, setHasCheckedWorkout] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     const [selectedDay, setSelectedDay] = useState<string | null>(null);
+    const [openRow, setOpenRow] = useState<number | null>(null);
+    const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
+    const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
+    const [isReplacing, setIsReplacing] = useState(false);
+    const [replaceFailed, setReplaceFailed] = useState(false);
 
     const loadWorkout = useCallback(() => {
-        try {
-            const storedWorkout = localStorage.getItem('generatedWorkout');
-            if (!storedWorkout) return false;
-            
-			try {
-				const parsedWorkout = JSON.parse(atob(storedWorkout));
-				if (!parsedWorkout) return false;
-				setWorkout(parsedWorkout);
-				return true;
-			} catch (error) {
-				try {
-					const parsedWorkout = JSON.parse(storedWorkout);
-					if (!parsedWorkout) return false;
-					setWorkout(parsedWorkout);
-					return true;
-				} catch (error) {
-					console.error('Error parsing workout data:', error);
-					return false;
-				}
-			}
-        } catch (error) {
-            console.error('Error parsing workout data:', error);
-            return false;
-        }
+        const parsed = parseStoredWorkout(localStorage.getItem('generatedWorkout'));
+        if (!parsed) return false;
+        setWorkout(parsed);
+        return true;
     }, []);
 
     useEffect(() => {
@@ -83,6 +71,49 @@ export default function Workout() {
         window.addEventListener('storage', handleStorageChange);
         return () => window.removeEventListener('storage', handleStorageChange);
     }, [loadWorkout, router]);
+
+    const persistWorkout = (plan: WorkoutPlan) => {
+        setWorkout(plan);
+        try {
+            localStorage.setItem('generatedWorkout', serializeWorkout(plan));
+        } catch (error) {
+            console.error('Error saving workout data:', error);
+        }
+    };
+
+    const handleDelete = (day: string, index: number) => {
+        persistWorkout(removeExercise(workout, day, index));
+        setDeletingIndex(null);
+        setOpenRow(null);
+    };
+
+    const handleReplace = async (day: string, index: number, reason: string) => {
+        const exercises = workout[day] as any[];
+        setIsReplacing(true);
+        setReplaceFailed(false);
+        try {
+            const response = await fetch('/api/replace-exercise', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    language,
+                    exercise: exercises[index],
+                    otherExercises: exercises.filter((_, i) => i !== index).map(e => e?.name).filter(Boolean),
+                    reason,
+                }),
+            });
+            if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+            const replacement = await response.json();
+            persistWorkout(replaceExercise(workout, day, index, replacement));
+            setReplacingIndex(null);
+            setOpenRow(null);
+        } catch (error) {
+            console.error('Error replacing exercise:', error);
+            setReplaceFailed(true);
+        } finally {
+            setIsReplacing(false);
+        }
+    };
 
     const getWeekdayName = (day: string): string => {
         const weekdays: Record<string, Record<string, string>> = {
@@ -149,7 +180,7 @@ export default function Workout() {
                         return (
                             <button
                                 key={day}
-                                onClick={() => setSelectedDay(day)}
+                                onClick={() => { setSelectedDay(day); setOpenRow(null); setDeletingIndex(null); }}
                                 className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-colors ${
                                     isSelected
                                         ? 'bg-terra-500 text-white border-terra-500'
@@ -168,21 +199,53 @@ export default function Workout() {
                         <h2 className="text-xl font-bold text-bark-800 mb-4 capitalize">
                             {getWeekdayName(currentDayData[0])}
                         </h2>
+                        <p className="text-xs text-bark-400 mb-3">{t('workout.swipeHint')}</p>
                         <div className="space-y-3">
+                            {Array.isArray(currentDayData[1]) && (currentDayData[1] as any[]).length === 0 && (
+                                <p className="text-bark-500 text-sm">{t('workout.emptyDay')}</p>
+                            )}
                             {Array.isArray(currentDayData[1]) && (currentDayData[1] as any[]).map((exercise: any, exIndex: number) => (
                                 exercise && exercise.name ? (
-                                    <div key={`${currentDayData[0]}-${exIndex}`} className="bg-white rounded-2xl p-4 border border-warm-border shadow-sm">
-                                        <h3 className="text-lg font-bold text-bark-800">{exercise.name}</h3>
-                                        {exercise.description && (
-                                            <p className="text-bark-500 text-sm mt-1">{exercise.description}</p>
-                                        )}
-                                    </div>
+                                    <SwipeableExercise
+                                        key={`${currentDayData[0]}-${exIndex}-${exercise.name}`}
+                                        isOpen={openRow === exIndex}
+                                        onOpenChange={open => setOpenRow(open ? exIndex : null)}
+                                        onEdit={() => { setReplaceFailed(false); setReplacingIndex(exIndex); }}
+                                        onDelete={() => setDeletingIndex(exIndex)}
+                                        editLabel={t('workout.editExercise')}
+                                        deleteLabel={t('workout.removeExercise')}
+                                    >
+                                        <div className="p-4">
+                                            <h3 className="text-lg font-bold text-bark-800">{exercise.name}</h3>
+                                            {exercise.description && (
+                                                <p className="text-bark-500 text-sm mt-1">{exercise.description}</p>
+                                            )}
+                                        </div>
+                                    </SwipeableExercise>
                                 ) : null
                             ))}
                         </div>
                     </div>
                 )}
             </div>
+
+            {currentDayData && deletingIndex !== null && (currentDayData[1] as any[])[deletingIndex] && (
+                <ConfirmDeleteDialog
+                    exerciseName={(currentDayData[1] as any[])[deletingIndex].name}
+                    onConfirm={() => handleDelete(currentDayData[0], deletingIndex)}
+                    onCancel={() => setDeletingIndex(null)}
+                />
+            )}
+
+            {currentDayData && replacingIndex !== null && (currentDayData[1] as any[])[replacingIndex] && (
+                <ReplaceExerciseSheet
+                    exerciseName={(currentDayData[1] as any[])[replacingIndex].name}
+                    isLoading={isReplacing}
+                    hasError={replaceFailed}
+                    onConfirm={reason => handleReplace(currentDayData[0], replacingIndex, reason)}
+                    onClose={() => setReplacingIndex(null)}
+                />
+            )}
         </div>
     );
 }
