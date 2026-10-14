@@ -14,7 +14,7 @@ src/pages/api/replace-exercise.ts        # Gemini call, origin-validated
 src/lib/workoutEdit.ts                   # pure: parse/serialize stored plan, remove/replace exercise
 src/lib/replaceExercise.ts               # pure: build prompt, parse Gemini reply
 src/components/SwipeableExercise.tsx     # swipe row (pointer events) with edit/delete actions
-src/components/ReplaceExerciseSheet.tsx  # bottom sheet: reason + confirm + error state
+src/components/ExerciseRequestSheet.tsx  # generic bottom sheet (reason + confirm + error), renamed in 002
 src/components/ConfirmDeleteDialog.tsx   # confirm modal before removing an exercise
 src/app/workout/page.tsx                 # wiring
 tests/*.test.ts                          # vitest unit tests

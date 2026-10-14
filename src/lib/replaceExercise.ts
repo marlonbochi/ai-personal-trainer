@@ -21,13 +21,13 @@ export function buildReplacePrompt({ language, exercise, otherExercises, reason 
 Exercício a substituir: "${exercise.name}" - ${exercise.description ?? ''}
 ${reasonLine}
 O substituto deve trabalhar o mesmo grupo muscular, ter dificuldade equivalente e NÃO pode ser igual a nenhum destes exercícios já presentes no dia: ${others}.
-Responda SOMENTE com um objeto JSON válido no formato {"name": "...", "description": "..."}, onde a descrição inclui séries, repetições, descanso e dicas de execução.`;
+Responda SOMENTE com um objeto JSON válido no formato {"name": "...", "description": "..."}, onde a descrição inclui séries, repetições, descanso e dicas de execução. A descrição deve falar apenas do exercício, em texto corrido simples, sem markdown (sem **, # ou listas).`;
   }
   return `Replace ONE exercise of a workout. Write in English and use a popular, real exercise name (never words like "replacement" or the original exercise name).
 Exercise to replace: "${exercise.name}" - ${exercise.description ?? ''}
 ${reasonLine}
 The substitute must target the same muscle group, have equivalent difficulty, and MUST NOT be any of the exercises already in the day: ${others}.
-Reply ONLY with a valid JSON object in the format {"name": "...", "description": "..."}, where the description includes sets, reps, rest and form tips.`;
+Reply ONLY with a valid JSON object in the format {"name": "...", "description": "..."}, where the description includes sets, reps, rest and form tips. The description must be about the exercise only, in plain running text with no markdown (no **, # or lists).`;
 }
 
 export function parseReplacement(text: string): Exercise | null {

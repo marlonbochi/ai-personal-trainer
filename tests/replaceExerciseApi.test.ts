@@ -2,10 +2,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('axios', () => ({ default: { post: vi.fn() } }));
 import axios from 'axios';
+import { resetRateLimits } from '../src/middleware/rateLimit';
 import handler from '../src/pages/api/replace-exercise';
 
 function mockRes() {
-  const res: any = { statusCode: 0, body: undefined };
+  const res: any = { statusCode: 0, body: undefined, headers: {} };
+  res.setHeader = (k: string, v: string) => { res.headers[k] = v; };
   res.status = (c: number) => { res.statusCode = c; return res; };
   res.json = (b: unknown) => { res.body = b; return res; };
   return res;
@@ -15,6 +17,7 @@ const body = { language: 'en', exercise: { name: 'Leg Press', description: '3x12
 const req = (over: any = {}) => ({ method: 'POST', headers: { origin: 'https://aitrainer.marlonbochi.com.br' }, body, ...over }) as any;
 
 beforeEach(() => {
+  resetRateLimits();
   vi.resetAllMocks();
   vi.stubEnv('NODE_ENV', 'production');
   vi.stubEnv('GEMINI_API_KEY', 'test-key');
@@ -64,5 +67,12 @@ describe('POST /api/replace-exercise', () => {
     const res = mockRes();
     await handler(req(), res);
     expect(res.statusCode).toBe(500);
+  });
+
+  it('answers 429 once a client exceeds the per-minute budget', async () => {
+    (axios.post as any).mockResolvedValue({ data: { candidates: [{ content: { parts: [{ text: '{"name":"A","description":"B"}' }] } }] } });
+    let last = 0;
+    for (let i = 0; i < 21; i++) { const r = mockRes(); await handler(req(), r); last = r.statusCode; }
+    expect(last).toBe(429);
   });
 });

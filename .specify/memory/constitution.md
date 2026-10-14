@@ -1,11 +1,13 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 1.1.0 (added "New features" rule to Development Workflow: Spec Kit + tests)
-- Modified principles: n/a (new document)
+- Version change: 1.1.0 → 1.2.0 (MINOR: added Principle VII Security by Default; corrected the
+  rationale of Principle II; added security review step to the Development Workflow)
+- Modified principles: II (rationale corrected: origin checks stop cross-site browser abuse, NOT
+  scripted clients that forge headers; route list updated)
 - Added sections:
   - Core Principles: I. Server-Only Secrets, II. Origin-Locked Public API,
     III. No-Build Local Dev, IV. Simplicity & YAGNI, V. Verified Documentation,
-    VI. Bilingual by Design
+    VI. Bilingual by Design, VII. Security by Default
   - Technology & Architecture Constraints
   - Development Workflow
   - Governance
@@ -15,7 +17,8 @@ Sync Impact Report
     reading this constitution at plan time, no template change required)
   - .specify/templates/spec-template.md: ⚠ pending review (no changes required)
   - .specify/templates/tasks-template.md: ⚠ pending review (no changes required)
-- Follow-up TODOs: none
+- Follow-up TODOs: see SECURITY.md "Known gaps" (rate limiting, CSP, dependency upgrades, API
+  body validation on workout/nutrition routes)
 -->
 
 # AI Personal Trainer Constitution
@@ -35,7 +38,8 @@ Gemini quota and billing.
 
 ### II. Origin-Locked Public API
 Every public API route that spends the Gemini quota (currently
-`/api/workout` and `/api/nutrition`) MUST validate that requests come from the
+`/api/workout`, `/api/nutrition`, `/api/replace-exercise` and
+`/api/add-exercise`) MUST validate that requests come from the
 app's own origin before doing any paid work, using `withOriginValidation`
 (`src/middleware/validateOrigin.ts`). Validation MUST fail closed: a missing
 `Origin` header is not treated as same-origin, and `Referer` MUST be compared
@@ -43,9 +47,11 @@ by parsed origin (`new URL(referer).origin`), never by string prefix.
 `Sec-Fetch-Site` MUST be checked as an additional, browser-set signal that
 page JavaScript cannot override. Origin validation MAY be skipped only when
 `NODE_ENV === 'development'`.
-Rationale: this is a public, unauthenticated app with no rate limiting; origin
-checks are the only guard against a third party scripting requests straight
-at the API and burning through the Gemini quota/cost.
+Rationale: this is a public, unauthenticated app. Origin checks stop other
+websites from driving a visitor's browser at the API (CSRF-style quota abuse).
+They do NOT stop a non-browser client (curl, scripts), which can forge the
+`Origin` header freely; that threat is addressed by Principle VII (rate
+limiting and input bounds), not by this principle.
 
 ### III. No-Build Local Dev
 Local development MUST be runnable with a single command
@@ -91,6 +97,52 @@ the same change, and new Gemini prompt text MUST branch on `language` the way
 Rationale: pt/en support already exists end-to-end (UI + generation prompts);
 a partial addition in only one language is a regression, not a shortcut.
 
+### VII. Security by Default
+Security MUST be considered in every feature, using current best practice
+(OWASP Top 10 as the baseline), not retrofitted afterwards. Every `plan.md`
+MUST address the checklist below in its Constitution Check, and
+[SECURITY.md](../../SECURITY.md) is the single place that records what is in
+place and what is a known gap. Rules:
+
+- **XSS**: user text and AI output MUST be rendered only as React text
+  children. `dangerouslySetInnerHTML`, `innerHTML`, `eval`, `new Function`
+  and `document.write` MUST NOT be used; if HTML is ever required it MUST be
+  sanitised with a vetted library first. URLs derived from user or AI content
+  MUST be checked against a scheme allow-list (`https:`/`http:`) before use in
+  `href`/`src`.
+- **CSRF**: state-changing endpoints MUST accept POST only, MUST NOT perform
+  side effects on GET, and MUST use `withOriginValidation` (Principle II). If
+  cookie-based sessions are ever introduced, cookies MUST be `HttpOnly`,
+  `Secure` and `SameSite=Lax` or stricter, with CSRF tokens on top.
+- **Input validation**: every API route MUST validate and bound its body on
+  the server (type, enum/allow-list, length, array size) before use, in a
+  pure function that is unit tested (pattern: `isValidReplaceBody`,
+  `sanitizeContext`). Client-side checks are UX only. Data read back from
+  `localStorage` MUST be treated as untrusted.
+- **Prompt injection**: user-supplied text is data, never instructions.
+  Model output MUST be parsed against a strict shape, MUST NOT be executed or
+  rendered as HTML, and MUST be length-bounded before persisting.
+- **Abuse and DoS**: routes that spend money MUST have request timeouts and
+  bounded input, and SHOULD be rate limited per client; any new
+  quota-spending route MUST NOT make the existing gap worse.
+- **Transport and headers**: the app MUST send `X-Content-Type-Options:
+  nosniff`, `Referrer-Policy`, a framing restriction and a Content Security
+  Policy appropriate to what the app loads; headers MUST be defined in app
+  config (not only on one hosting platform) so they apply in every
+  environment.
+- **Dependencies**: no dependency is added without a clear need; `npm audit`
+  MUST be reviewed when dependencies change, and critical/high advisories in
+  production dependencies MUST be tracked until fixed. The lockfile MUST be
+  committed.
+- **Secrets and logging**: Principle I applies; additionally logs MUST NOT
+  contain secrets or user free-text beyond what is needed to debug.
+- **Least data**: the app MUST NOT collect or persist more personal data than
+  the feature needs, and MUST NOT put secrets or PII in URLs, query strings or
+  client storage.
+Rationale: the app is public and unauthenticated and fronts a paid API; a
+single injection, CSRF or abuse path costs money or exposes visitors, and
+retrofitting protections is more expensive than designing them in.
+
 ## Technology & Architecture Constraints
 
 - **Framework**: Next.js (App Router for pages, Pages API routes for the two
@@ -128,6 +180,10 @@ a partial addition in only one language is a regression, not a shortcut.
   (`.claude/skills/new-feature/SKILL.md`).
 - **Commits**: only create git commits when the user explicitly asks for one
   in that turn; a prior request to commit does not carry forward.
+- **Security review**: before reporting a feature as done, check it against
+  Principle VII (and run the `security-review` skill for changes touching API
+  routes, storage or dependencies). Record new gaps in SECURITY.md instead of
+  leaving them implicit.
 - **Security-relevant changes** (origin validation, secret handling, env var
   exposure) MUST be verified against a production-mode build
   (`NODE_ENV=production`, not `next dev`) before being reported as working,
@@ -144,4 +200,4 @@ PATCH for wording/clarification only. Any change touching a Core Principle
 MUST state, in the Sync Impact Report, whether downstream Spec Kit templates
 (`plan-template.md`, `spec-template.md`, `tasks-template.md`) need review.
 
-**Version**: 1.1.0 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-09-24
+**Version**: 1.2.0 | **Ratified**: 2026-09-22 | **Last Amended**: 2026-10-10

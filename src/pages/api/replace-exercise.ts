@@ -1,10 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import axios from 'axios';
-import * as dotenv from 'dotenv';
 import { withOriginValidation } from '../../middleware/validateOrigin';
-import { buildReplacePrompt, isValidReplaceBody, parseReplacement } from '../../lib/replaceExercise';
-
-dotenv.config();
+import { withRateLimit } from '../../middleware/rateLimit';
+import { buildReplacePrompt, isValidReplaceBody } from '../../lib/replaceExercise';
+import { requestExercise } from '../../lib/geminiExercise';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
@@ -15,33 +13,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         return res.status(400).json({ error: 'Invalid request' });
     }
 
-    const API_KEY = process.env.GEMINI_API_KEY;
-    const API_URL = process.env.GEMINI_API_URL;
-    if (!API_KEY || !API_URL) {
-        console.error('GEMINI_API_KEY or GEMINI_API_URL is not configured');
-        return res.status(500).json({ error: 'Failed to replace exercise' });
-    }
-
     try {
-        const response = await axios.post<any>(
-            `${API_URL}?key=${API_KEY}`,
-            {
-                contents: [{ parts: [{ text: buildReplacePrompt(req.body) }] }],
-                generationConfig: { responseMimeType: 'application/json', thinkingConfig: { thinkingBudget: 0 } },
-            },
-            { headers: { 'Content-Type': 'application/json' }, timeout: 45000 }
-        );
-
-        const text: string | undefined = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        const replacement = text ? parseReplacement(text) : null;
-        if (!replacement) {
-            throw new Error('Invalid response format from Gemini API');
-        }
-        return res.status(200).json(replacement);
+        const exercise = await requestExercise(buildReplacePrompt(req.body));
+        return res.status(200).json(exercise);
     } catch (error) {
         console.error('Error replacing exercise:', error instanceof Error ? error.message : 'unknown error');
         return res.status(500).json({ error: 'Failed to replace exercise' });
     }
 }
 
-export default withOriginValidation(handler);
+export default withRateLimit(withOriginValidation(handler), { name: 'replace-exercise', limit: 20, windowMs: 60_000 });
+
+export const config = {
+    api: { bodyParser: { sizeLimit: '16kb' } },
+};
