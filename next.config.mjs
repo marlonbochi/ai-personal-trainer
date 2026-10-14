@@ -1,13 +1,17 @@
-/** @type {import('next').NextConfig} */
-const withPWA = require('next-pwa')({
-  dest: 'public',
-  register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
-  buildExcludes: [/middleware-manifest\.json$/],
-});
+import withSerwistInit from '@serwist/next';
 
 const isDev = process.env.NODE_ENV === 'development';
+
+// Service worker source: src/sw.ts. The build writes the precache manifest
+// into it and emits public/sw.js (git-ignored). Disabled in development.
+const withPWA = withSerwistInit({
+  swSrc: 'src/sw.ts',
+  swDest: 'public/sw.js',
+  disable: isDev,
+  // The previous setup never reloaded the page when the connection came back;
+  // a reload would also discard a half-filled form.
+  reloadOnOnline: false,
+});
 
 // Next.js inlines its hydration scripts and critical CSS, so 'unsafe-inline' is
 // required until nonces are introduced (that needs dynamic rendering).
@@ -37,6 +41,7 @@ const securityHeaders = [
   ...(isDev ? [] : [{ key: 'Content-Security-Policy', value: contentSecurityPolicy }]),
 ];
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -57,4 +62,4 @@ const nextConfig = {
   },
 };
 
-module.exports = isDev ? nextConfig : withPWA(nextConfig);
+export default isDev ? nextConfig : withPWA(nextConfig);

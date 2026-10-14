@@ -22,8 +22,8 @@ jobs:
           cache: npm
       # --ignore-scripts: `postinstall` runs a full build; the build step below does that once.
       - run: npm ci --ignore-scripts
-      - name: Dependency audit (production, critical)
-        run: npm audit --omit=dev --audit-level=critical
+      - name: Dependency audit (production, high)
+        run: npm audit --omit=dev --audit-level=high
       - name: Unit tests
         run: npm test
       - name: Production build

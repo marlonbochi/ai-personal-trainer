@@ -67,4 +67,10 @@ for n in 1 2 3 4 5 6 7 8 9 10 11 12; do LAST="$(plan workout 10.0.0.9 '{"age":"x
 check "workout: rate limit answers 429 after the budget" 429 "$LAST"
 check "workout: other clients are unaffected" 400 "$(plan workout 10.0.0.10 '{"age":"x"}')"
 
+# --- PWA: service worker and offline page are served from a production build
+check "pwa: /sw.js is served" 200 "$(curl -s -o /dev/null -w '%{http_code}' "$BASE/sw.js")"
+check "pwa: /sw.js is JavaScript" yes "$(curl -s -D - -o /dev/null "$BASE/sw.js" | tr -d '\r' | grep -iq '^content-type: application/javascript' && echo yes || echo no)"
+check "pwa: offline page is precached" yes "$(curl -s "$BASE/sw.js" | grep -q 'offline.html' && echo yes || echo no)"
+check "pwa: /offline.html is served" 200 "$(curl -s -o /dev/null -w '%{http_code}' "$BASE/offline.html")"
+
 exit $FAILED
