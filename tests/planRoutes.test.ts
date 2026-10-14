@@ -66,6 +66,13 @@ describe.each([
     expect(options.headers['x-goog-api-key']).toBe('test-key');
   });
 
+  it('asks Gemini for pure JSON output', async () => {
+    (axios.post as any).mockResolvedValueOnce(reply(geminiText));
+    await handler(post(validBody), mockRes());
+    const sentBody = (axios.post as any).mock.calls[0][1];
+    expect(sentBody.generationConfig).toEqual({ responseMimeType: 'application/json' });
+  });
+
   it('falls back to the second model and still answers 200', async () => {
     (axios.post as any)
       .mockRejectedValueOnce(Object.assign(new Error('503'), { response: { status: 503 } }))

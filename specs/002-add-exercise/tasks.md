@@ -16,3 +16,8 @@
 - [x] T009 Unit tests: `tests/workoutEdit.test.ts` (extended), `tests/addExercise.test.ts`, `tests/addExerciseApi.test.ts`
 - [x] T010 `scripts/integration.sh`: add-exercise origin/body checks
 - [x] T011 `npm test`, `tsc`, production build, integration, browser check
+
+## Phase 4: Legacy plans
+- [x] T012 `withMeta`, `canAddExercise` (legacy vs versioned), keep `_meta` after edits
+- [x] T013 Generator page stores plans through `withMeta`
+- [x] T014 Tests for legacy/versioned/serialisation; browser check on a legacy plan and a freshly generated one

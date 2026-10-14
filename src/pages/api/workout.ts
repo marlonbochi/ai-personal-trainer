@@ -189,7 +189,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
         try {
             const { result: responseData, usedFallback } = await generateWithFallback(
-                { contents: [{ parts: [{ text: prompt }] }] },
+                {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    // Pure JSON: the prompt's example contains a // comment the model may copy.
+                    generationConfig: { responseMimeType: 'application/json' },
+                },
                 geminiResponseText => {
                     // Remove code block markers if present
                     const cleaned = geminiResponseText

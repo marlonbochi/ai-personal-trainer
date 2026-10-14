@@ -7,7 +7,7 @@ import { useTranslation } from '@/lib/i18n/TranslationContext';
 import SwipeableExercise from '@/components/SwipeableExercise';
 import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog';
 import ExerciseRequestSheet from '@/components/ExerciseRequestSheet';
-import { parseStoredWorkout, serializeWorkout, removeExercise, replaceExercise, addExercise, getRemovedCount, WorkoutPlan } from '@/lib/workoutEdit';
+import { parseStoredWorkout, serializeWorkout, removeExercise, replaceExercise, addExercise, canAddExercise, WorkoutPlan } from '@/lib/workoutEdit';
 import { sanitizeContext } from '@/lib/addExercise';
 
 const DAY_ABBR: Record<string, Record<string, string>> = {
@@ -265,7 +265,7 @@ export default function Workout() {
                                     </SwipeableExercise>
                                 ) : null
                             ))}
-                            {getRemovedCount(workout, currentDayData[0]) > 0 && (
+                            {canAddExercise(workout, currentDayData[0]) && (
                                 <button
                                     type="button"
                                     onClick={() => { setAddFailed(false); setIsAddOpen(true); }}

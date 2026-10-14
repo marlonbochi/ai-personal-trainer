@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   parseStoredWorkout, serializeWorkout, removeExercise, replaceExercise, addExercise, getRemovedCount,
+  canAddExercise, withMeta,
 } from '@/lib/workoutEdit';
 
 const plan = {
@@ -82,9 +83,9 @@ describe('addExercise', () => {
     expect(next.monday.map(e => e.name)).toEqual(['Lunge', 'Plank', 'Goblet Squat']);
     expect(getRemovedCount(next, 'monday')).toBe(0);
   });
-  it('drops _meta once nothing is tracked, restoring the original shape', () => {
-    const next = addExercise(removeExercise(plan, 'monday', 0), 'monday', { name: 'X' });
-    expect('_meta' in next).toBe(false);
+  it('keeps _meta (version marker) after the counter returns to zero, without leftover day entries', () => {
+    const next = addExercise(removeExercise(withMeta(plan), 'monday', 0), 'monday', { name: 'X' }) as any;
+    expect(next._meta).toEqual({ v: 1, removed: {} });
   });
   it('keeps the counter for other days and for remaining removals', () => {
     const multi = { monday: [{ name: 'A' }, { name: 'B' }], wednesday: [{ name: 'C' }] };
@@ -120,5 +121,60 @@ describe('replaceExercise', () => {
   it('ignores invalid targets', () => {
     expect(replaceExercise(plan, 'tuesday', 0, { name: 'X' })).toBe(plan);
     expect((replaceExercise(plan, 'monday', 5, { name: 'X' }) as typeof plan).monday.map(e => e.name)).toEqual(['Squat', 'Lunge', 'Plank']);
+  });
+});
+
+describe('withMeta (freshly generated plans)', () => {
+  it('marks the plan as versioned and keeps the exercises untouched', () => {
+    const out = withMeta(plan) as any;
+    expect(out._meta).toEqual({ v: 1 });
+    expect(out.monday).toEqual(plan.monday);
+  });
+  it('discards a _meta key returned by the model', () => {
+    const hostile = { ...plan, _meta: { legacy: true, removed: { monday: 99 } } };
+    expect((withMeta(hostile) as any)._meta).toEqual({ v: 1 });
+  });
+  it('does not mutate its input', () => {
+    withMeta(plan);
+    expect('_meta' in plan).toBe(false);
+  });
+});
+
+describe('canAddExercise', () => {
+  it('legacy plan (no _meta): offered on every exercise day, never on rest days or unknown days', () => {
+    expect(canAddExercise(plan, 'monday')).toBe(true);
+    expect(canAddExercise(plan, 'tuesday')).toBe(false);
+    expect(canAddExercise(plan, 'friday')).toBe(false);
+  });
+  it('versioned plan: hidden until something is removed on that day', () => {
+    const fresh = withMeta(plan);
+    expect(canAddExercise(fresh, 'monday')).toBe(false);
+    const removed = removeExercise(fresh, 'monday', 0);
+    expect(canAddExercise(removed, 'monday')).toBe(true);
+  });
+  it('versioned plan: only the day with a removal is offered', () => {
+    const multi = withMeta({ monday: [{ name: 'A' }, { name: 'B' }], wednesday: [{ name: 'C' }] });
+    const removed = removeExercise(multi, 'monday', 0);
+    expect(canAddExercise(removed, 'monday')).toBe(true);
+    expect(canAddExercise(removed, 'wednesday')).toBe(false);
+  });
+  it('versioned plan: hidden again once the day is back to its original size', () => {
+    const removed = removeExercise(withMeta(plan), 'monday', 0);
+    expect(canAddExercise(addExercise(removed, 'monday', { name: 'N' }), 'monday')).toBe(false);
+  });
+  it('a legacy plan stays "legacy" after being edited, so earlier removals remain addable', () => {
+    const multi = { monday: [{ name: 'A' }, { name: 'B' }], wednesday: [{ name: 'C' }, { name: 'D' }] };
+    const edited = removeExercise(multi, 'monday', 0) as any;
+    expect(edited._meta.legacy).toBe(true);
+    expect(canAddExercise(edited, 'wednesday')).toBe(true);
+    const afterAdd = addExercise(edited, 'monday', { name: 'N' });
+    expect(canAddExercise(afterAdd, 'monday')).toBe(true);
+    expect(canAddExercise(afterAdd, 'wednesday')).toBe(true);
+  });
+  it('survives serialisation in both states', () => {
+    const legacyEdited = removeExercise(plan, 'monday', 0);
+    expect(canAddExercise(parseStoredWorkout(serializeWorkout(legacyEdited))!, 'monday')).toBe(true);
+    const fresh = withMeta(plan);
+    expect(canAddExercise(parseStoredWorkout(serializeWorkout(fresh))!, 'monday')).toBe(false);
   });
 });
