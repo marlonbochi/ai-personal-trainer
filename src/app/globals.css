@@ -1,6 +1,91 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-warm-bg: #faf5ef;
+  --color-warm-card: #ffffff;
+  --color-warm-border: #e8ddd0;
+  --color-warm-border-dark: #d4c4b0;
+
+  --color-terra-50: #fdf5f0;
+  --color-terra-100: #faeade;
+  --color-terra-200: #f2d0b8;
+  --color-terra-300: #e5b08a;
+  --color-terra-400: #d4915f;
+  --color-terra-500: #c47243;
+  --color-terra-600: #b05e32;
+  --color-terra-700: #8e4a28;
+  --color-terra-800: #6e3a20;
+  --color-terra-900: #4a2816;
+
+  --color-olive-50: #f4f7f0;
+  --color-olive-100: #e6eedb;
+  --color-olive-200: #ccd9b8;
+  --color-olive-300: #a8be8a;
+  --color-olive-400: #7a9e5a;
+  --color-olive-500: #5a7a3d;
+  --color-olive-600: #466330;
+  --color-olive-700: #374d26;
+  --color-olive-800: #2c3e1f;
+  --color-olive-900: #1e2b15;
+
+  --color-bark-50: #f7f3ef;
+  --color-bark-100: #ede5db;
+  --color-bark-200: #d9cbbb;
+  --color-bark-300: #bea992;
+  --color-bark-400: #a08b6e;
+  --color-bark-500: #7a6b5d;
+  --color-bark-600: #5e5347;
+  --color-bark-700: #4a3f37;
+  --color-bark-800: #3d2b1f;
+  --color-bark-900: #2a1d14;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+/*
+  Tailwind v4 preflight changes kept as in v3: placeholders were gray-400 and
+  buttons showed a pointer cursor.
+*/
+@layer base {
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@utility bg-background {
+  background-color: #faf5ef;
+}
+
+@utility text-foreground {
+  color: #3d2b1f;
+}
 
 @layer base {
   :root {
@@ -14,17 +99,27 @@
     font-feature-settings: 'rlig' 1, 'calt' 1;
   }
 
+}
+
+/*
+  Form controls. In Tailwind v3 these lived in the base layer but still beat
+  utilities such as `h-4 w-4` through specificity. v4 uses native cascade
+  layers, where any utility beats any base rule, so they sit in the utilities
+  layer: specificity decides again, exactly as in v3 (e.g. `.disabled\:cursor-not-allowed:disabled`
+  still wins over `cursor: pointer`).
+*/
+@layer utilities {
   /* Form elements */
   input[type='text'],
   input[type='number'],
   select,
   textarea {
-    @apply bg-white text-bark-800 border border-warm-border rounded-xl shadow-sm focus:ring-terra-500 focus:border-terra-500;
+    @apply bg-white text-bark-800 border border-warm-border rounded-xl shadow-xs focus:ring-terra-500 focus:border-terra-500;
   }
 
   input[type='checkbox'],
   input[type='radio'] {
-    @apply border-2 border-warm-border-dark bg-white rounded;
+    @apply border-2 border-warm-border-dark bg-white rounded-sm;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -74,16 +169,6 @@
     height: 0.5rem;
     border-radius: 50%;
     background: white;
-  }
-}
-
-@layer utilities {
-  .bg-background {
-    background-color: #FAF5EF;
-  }
-  
-  .text-foreground {
-    color: #3D2B1F;
   }
 }
 

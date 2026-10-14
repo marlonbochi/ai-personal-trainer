@@ -82,7 +82,7 @@ export default function SwipeableExercise({ children, isOpen, onOpenChange, onEd
                     transition: dragX === null ? 'transform 0.2s ease' : 'none',
                     touchAction: 'pan-y',
                 }}
-                className="relative bg-white border border-warm-border shadow-sm rounded-2xl select-none cursor-grab"
+                className="relative bg-white border border-warm-border shadow-xs rounded-2xl select-none cursor-grab"
             >
                 {children}
             </div>

@@ -54,7 +54,7 @@ export default function Home() {
 		<div className="flex gap-3">
 			<button
 			onClick={() => router.push('/generate-workout')}
-			className="flex-2 w-full bg-terra-500 hover:bg-terra-600 text-white font-medium py-3 px-6 rounded-2xl transition-colors shadow-md"
+			className="w-full bg-terra-500 hover:bg-terra-600 text-white font-medium py-3 px-6 rounded-2xl transition-colors shadow-md"
 			>
 			{t('workout.getStarted')}
 			</button>

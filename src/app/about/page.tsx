@@ -63,7 +63,7 @@ export default function AboutPage() {
           </h2>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 h-9 w-9 rounded-full bg-terra-100 flex items-center justify-center text-terra-600 font-bold text-sm">1</div>
+              <div className="shrink-0 h-9 w-9 rounded-full bg-terra-100 flex items-center justify-center text-terra-600 font-bold text-sm">1</div>
               <div>
                 <h3 className="font-semibold text-bark-800 text-sm">{translations.step1Title}</h3>
                 <p className="text-bark-500 text-sm">{translations.step1Desc}</p>
@@ -71,7 +71,7 @@ export default function AboutPage() {
             </div>
             
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 h-9 w-9 rounded-full bg-terra-100 flex items-center justify-center text-terra-600 font-bold text-sm">2</div>
+              <div className="shrink-0 h-9 w-9 rounded-full bg-terra-100 flex items-center justify-center text-terra-600 font-bold text-sm">2</div>
               <div>
                 <h3 className="font-semibold text-bark-800 text-sm">{translations.step2Title}</h3>
                 <p className="text-bark-500 text-sm">{translations.step2Desc}</p>
@@ -79,7 +79,7 @@ export default function AboutPage() {
             </div>
             
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 h-9 w-9 rounded-full bg-terra-100 flex items-center justify-center text-terra-600 font-bold text-sm">3</div>
+              <div className="shrink-0 h-9 w-9 rounded-full bg-terra-100 flex items-center justify-center text-terra-600 font-bold text-sm">3</div>
               <div>
                 <h3 className="font-semibold text-bark-800 text-sm">{translations.step3Title}</h3>
                 <p className="text-bark-500 text-sm">{translations.step3Desc}</p>

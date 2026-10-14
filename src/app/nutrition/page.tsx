@@ -67,7 +67,7 @@ export default function NutritionPage() {
                     </h2>
                     <button
                         onClick={() => router.push('/generate-nutrition')}
-                        className="w-full py-3 px-4 border border-transparent rounded-2xl shadow-sm text-sm font-medium text-white bg-terra-500 hover:bg-terra-600 transition-colors"
+                        className="w-full py-3 px-4 border border-transparent rounded-2xl shadow-xs text-sm font-medium text-white bg-terra-500 hover:bg-terra-600 transition-colors"
                     >
                         {t('nutrition.createPlanButton')}
                     </button>
@@ -100,7 +100,7 @@ export default function NutritionPage() {
                             <button
                                 key={day}
                                 onClick={() => setSelectedDay(day)}
-                                className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-colors ${
+                                className={`shrink-0 px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-colors ${
                                     isSelected
                                         ? 'bg-terra-500 text-white border-terra-500'
                                         : 'bg-white text-bark-600 border-warm-border hover:border-terra-300'

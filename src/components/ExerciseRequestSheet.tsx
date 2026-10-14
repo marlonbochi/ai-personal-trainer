@@ -54,7 +54,7 @@ export default function ExerciseRequestSheet({
                     disabled={isLoading}
                     onChange={e => setText(e.target.value)}
                     placeholder={placeholder}
-                    className="w-full rounded-xl border-2 border-warm-border p-3 text-sm text-bark-800 focus:border-terra-500 outline-none"
+                    className="w-full rounded-xl border-2 border-warm-border p-3 text-sm text-bark-800 focus:border-terra-500 outline-hidden"
                 />
 
                 {hasError && <p className="text-sm text-terra-700 mt-2">{errorMessage}</p>}

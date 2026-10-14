@@ -222,7 +222,7 @@ export default function Workout() {
                             <button
                                 key={day}
                                 onClick={() => { setSelectedDay(day); setOpenRow(null); setDeletingIndex(null); setIsAddOpen(false); }}
-                                className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-colors ${
+                                className={`shrink-0 px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-colors ${
                                     isSelected
                                         ? 'bg-terra-500 text-white border-terra-500'
                                         : 'bg-white text-bark-600 border-warm-border hover:border-terra-300'

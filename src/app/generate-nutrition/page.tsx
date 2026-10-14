@@ -116,7 +116,7 @@ export default function GenerateNutritionPage() {
                                     value={formData.age}
                                     onChange={handleChange}
                                     disabled={isSubmitting}
-                                    className="mt-1 block w-full rounded-xl border-warm-border shadow-sm focus:border-terra-500 focus:ring-terra-500 sm:text-sm disabled:opacity-75 disabled:bg-bark-50"
+                                    className="mt-1 block w-full rounded-xl border-warm-border shadow-xs focus:border-terra-500 focus:ring-terra-500 sm:text-sm disabled:opacity-75 disabled:bg-bark-50"
                                 >
                                     {Array.from({ length: 85 }, (_, i) => 15 + i).map(age => (
                                         <option key={age} value={age}>
@@ -194,7 +194,7 @@ export default function GenerateNutritionPage() {
                                     value={formData.caloriesPerDay}
                                     onChange={handleChange}
                                     disabled={isSubmitting}
-                                    className="mt-1 block w-full rounded-xl border-warm-border shadow-sm focus:border-terra-500 focus:ring-terra-500 sm:text-sm disabled:opacity-75 disabled:bg-bark-50"
+                                    className="mt-1 block w-full rounded-xl border-warm-border shadow-xs focus:border-terra-500 focus:ring-terra-500 sm:text-sm disabled:opacity-75 disabled:bg-bark-50"
                                 />
                             </div>
                             <div>
@@ -210,7 +210,7 @@ export default function GenerateNutritionPage() {
                                     value={formData.budgetPerWeek}
                                     onChange={handleChange}
                                     disabled={isSubmitting}
-                                    className="mt-1 block w-full rounded-xl border-warm-border shadow-sm focus:border-terra-500 focus:ring-terra-500 sm:text-sm disabled:opacity-75 disabled:bg-bark-50"
+                                    className="mt-1 block w-full rounded-xl border-warm-border shadow-xs focus:border-terra-500 focus:ring-terra-500 sm:text-sm disabled:opacity-75 disabled:bg-bark-50"
                                 />
                             </div>
                         </div>
