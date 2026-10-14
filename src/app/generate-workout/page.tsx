@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
 import { fetchWithValidation } from '@/lib/api';
+import { serializeWorkout, withMeta } from '@/lib/workoutEdit';
 
 type FitnessLevel = 'beginner' | 'intermediate' | 'advanced';
 type WorkoutGoal = 'weight_loss' | 'muscle_gain' | 'endurance' | 'strength';
@@ -108,7 +109,7 @@ export default function GenerateWorkoutPage() {
                     throw new Error('No data received from server');
                 }
                 
-                localStorage.setItem('generatedWorkout', btoa(JSON.stringify(data)));
+                localStorage.setItem('generatedWorkout', serializeWorkout(withMeta(data)));
                 router.push('/workout');
             } catch (error) {
                 console.error('Error generating workout:', error);

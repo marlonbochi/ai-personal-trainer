@@ -68,7 +68,8 @@ Fill in `.env.local`:
 | Variable | Description |
 | --- | --- |
 | `GEMINI_API_KEY` | Your Gemini API key |
-| `GEMINI_API_URL` | Gemini endpoint used to generate content |
+| `GEMINI_API_URL` | Gemini endpoint used to generate content, e.g. `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent` |
+| `GEMINI_FALLBACK_MODEL` | *(optional)* model retried automatically when the primary one is unavailable (default `gemini-3.8-flash`) |
 | `NEXT_PUBLIC_APP_URL` | Public base URL of the app (defaults to `http://localhost:3000` locally) |
 
 ### 2. Run it
@@ -99,6 +100,10 @@ Stop it with:
 ```bash
 docker compose down
 ```
+
+## Security
+
+Security is a project requirement: the rules live in [`.specify/memory/constitution.md`](.specify/memory/constitution.md) (Principle VII) and [`SECURITY.md`](SECURITY.md) documents what is protected today (XSS, CSRF/origin validation, server-side secrets, input validation), the checklist for every change, and the known gaps. To report a vulnerability, see `SECURITY.md`.
 
 ## Testing
 

@@ -11,6 +11,10 @@ describe('buildReplacePrompt', () => {
     expect(p).toContain('no machine');
     expect(p).toContain('English');
   });
+  it('asks for plain text without markdown', () => {
+    expect(buildReplacePrompt(base)).toContain('no markdown');
+    expect(buildReplacePrompt({ ...base, language: 'pt' })).toContain('sem markdown');
+  });
   it('omits the reason line when not given', () => {
     expect(buildReplacePrompt(base)).not.toContain('Reason for replacing');
   });

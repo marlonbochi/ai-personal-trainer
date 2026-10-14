@@ -2,12 +2,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Pencil } from 'lucide-react';
+import { Pencil, Plus } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
 import SwipeableExercise from '@/components/SwipeableExercise';
 import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog';
-import ReplaceExerciseSheet from '@/components/ReplaceExerciseSheet';
-import { parseStoredWorkout, serializeWorkout, removeExercise, replaceExercise, WorkoutPlan } from '@/lib/workoutEdit';
+import ExerciseRequestSheet from '@/components/ExerciseRequestSheet';
+import { parseStoredWorkout, serializeWorkout, removeExercise, replaceExercise, addExercise, canAddExercise, WorkoutPlan } from '@/lib/workoutEdit';
+import { sanitizeContext } from '@/lib/addExercise';
 
 const DAY_ABBR: Record<string, Record<string, string>> = {
     pt: { monday: 'Seg', tuesday: 'Ter', wednesday: 'Qua', thursday: 'Qui', friday: 'Sex', saturday: 'Sáb', sunday: 'Dom' },
@@ -26,6 +27,9 @@ export default function Workout() {
     const [deletingIndex, setDeletingIndex] = useState<number | null>(null);
     const [isReplacing, setIsReplacing] = useState(false);
     const [replaceFailed, setReplaceFailed] = useState(false);
+    const [isAddOpen, setIsAddOpen] = useState(false);
+    const [isAdding, setIsAdding] = useState(false);
+    const [addFailed, setAddFailed] = useState(false);
 
     const loadWorkout = useCallback(() => {
         const parsed = parseStoredWorkout(localStorage.getItem('generatedWorkout'));
@@ -115,6 +119,43 @@ export default function Workout() {
         }
     };
 
+    const loadFormContext = () => {
+        try {
+            const saved = localStorage.getItem('workoutPreferences');
+            return saved ? sanitizeContext(JSON.parse(saved)) : {};
+        } catch {
+            return {};
+        }
+    };
+
+    const handleAdd = async (day: string, description: string) => {
+        const exercises = workout[day] as any[];
+        setIsAdding(true);
+        setAddFailed(false);
+        try {
+            const response = await fetch('/api/add-exercise', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    language,
+                    day: getWeekdayName(day),
+                    otherExercises: exercises.map(e => e?.name).filter(Boolean),
+                    description,
+                    context: loadFormContext(),
+                }),
+            });
+            if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+            const exercise = await response.json();
+            persistWorkout(addExercise(workout, day, exercise));
+            setIsAddOpen(false);
+        } catch (error) {
+            console.error('Error adding exercise:', error);
+            setAddFailed(true);
+        } finally {
+            setIsAdding(false);
+        }
+    };
+
     const getWeekdayName = (day: string): string => {
         const weekdays: Record<string, Record<string, string>> = {
             pt: {
@@ -180,7 +221,7 @@ export default function Workout() {
                         return (
                             <button
                                 key={day}
-                                onClick={() => { setSelectedDay(day); setOpenRow(null); setDeletingIndex(null); }}
+                                onClick={() => { setSelectedDay(day); setOpenRow(null); setDeletingIndex(null); setIsAddOpen(false); }}
                                 className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold border-2 transition-colors ${
                                     isSelected
                                         ? 'bg-terra-500 text-white border-terra-500'
@@ -224,6 +265,16 @@ export default function Workout() {
                                     </SwipeableExercise>
                                 ) : null
                             ))}
+                            {canAddExercise(workout, currentDayData[0]) && (
+                                <button
+                                    type="button"
+                                    onClick={() => { setAddFailed(false); setIsAddOpen(true); }}
+                                    className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-dashed border-terra-300 text-terra-600 font-semibold hover:bg-terra-50 transition-colors"
+                                >
+                                    <Plus className="h-5 w-5" />
+                                    {t('workout.addExercise')}
+                                </button>
+                            )}
                         </div>
                     </div>
                 )}
@@ -238,12 +289,34 @@ export default function Workout() {
             )}
 
             {currentDayData && replacingIndex !== null && (currentDayData[1] as any[])[replacingIndex] && (
-                <ReplaceExerciseSheet
-                    exerciseName={(currentDayData[1] as any[])[replacingIndex].name}
+                <ExerciseRequestSheet
+                    title={t('workout.replaceExerciseTitle')}
+                    subtitle={(currentDayData[1] as any[])[replacingIndex].name}
+                    label={t('workout.replaceReasonLabel')}
+                    placeholder={t('workout.replaceReasonPlaceholder')}
+                    confirmLabel={t('workout.replaceConfirm')}
+                    loadingLabel={t('workout.replacing')}
+                    errorMessage={t('workout.replaceError')}
                     isLoading={isReplacing}
                     hasError={replaceFailed}
                     onConfirm={reason => handleReplace(currentDayData[0], replacingIndex, reason)}
                     onClose={() => setReplacingIndex(null)}
+                />
+            )}
+
+            {currentDayData && isAddOpen && (
+                <ExerciseRequestSheet
+                    title={t('workout.addExerciseTitle')}
+                    subtitle={getWeekdayName(currentDayData[0])}
+                    label={t('workout.addDescriptionLabel')}
+                    placeholder={t('workout.addDescriptionPlaceholder')}
+                    confirmLabel={t('workout.addConfirm')}
+                    loadingLabel={t('workout.adding')}
+                    errorMessage={t('workout.addError')}
+                    isLoading={isAdding}
+                    hasError={addFailed}
+                    onConfirm={description => handleAdd(currentDayData[0], description)}
+                    onClose={() => setIsAddOpen(false)}
                 />
             )}
         </div>

@@ -15,7 +15,7 @@
 - [x] T007b `src/components/ConfirmDeleteDialog.tsx`: confirm before deleting
 
 ## Phase 4: US2 Replace (P1)
-- [x] T008 `src/components/ReplaceExerciseSheet.tsx`
+- [x] T008 `src/components/ExerciseRequestSheet.tsx` (renamed from ReplaceExerciseSheet in 002)
 - [x] T009 Wire replace flow, error + retry state
 
 ## Phase 5: Verify
