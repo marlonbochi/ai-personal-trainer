@@ -39,7 +39,7 @@ export async function fetchWithValidation<T = any>(
     } catch (e) {
       errorData = { message: response.statusText || 'API request failed' };
     }
-    throw new Error(errorData.message || 'API request failed');
+    throw new Error(errorData.error || errorData.message || 'API request failed');
   }
   
   // Handle empty responses (like for 204 No Content)

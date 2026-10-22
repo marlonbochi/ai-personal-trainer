@@ -8,7 +8,19 @@ BASE="http://localhost:$PORT"
 
 NODE_ENV=production npx next start -p "$PORT" >/tmp/integration-server.log 2>&1 &
 SERVER_PID=$!
-trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+
+# `npx` starts next, which starts next-server: stop the whole tree, otherwise the
+# port stays busy for whatever runs next (e.g. the Playwright suite in CI).
+kill_tree() {
+  for child in $(pgrep -P "$1" 2>/dev/null); do kill_tree "$child"; done
+  kill "$1" 2>/dev/null || true
+}
+stop_server() {
+  kill_tree "$SERVER_PID"
+  i=0
+  while curl -s -o /dev/null "$BASE/about" && [ "$i" -lt 20 ]; do i=$((i + 1)); sleep 0.5; done
+}
+trap stop_server EXIT
 
 i=0
 until curl -s -o /dev/null "$BASE/workout"; do

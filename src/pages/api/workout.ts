@@ -52,14 +52,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         const weekdaysList = language === 'pt' ? weekdays.pt : weekdays.en;
         
         // Map the selected days to the correct language if needed
-        const selectedWeekdays = rawSelectedDays.map(day => {
+        const selectedWeekdays = rawSelectedDays.map(rawDay => {
+            // 'terça-feira' and 'terca-feira' are the same day.
+            const day = rawDay.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
             if (language === 'pt') {
                 // If PT, map from English day names to Portuguese if needed
-                const enIndex = weekdays.en.indexOf(day.toLowerCase());
+                const enIndex = weekdays.en.indexOf(day);
                 return enIndex >= 0 ? weekdays.pt[enIndex] : day;
             }
             // If EN, ensure day is in English
-            const ptIndex = weekdays.pt.indexOf(day.toLowerCase());
+            const ptIndex = weekdays.pt.indexOf(day);
             return ptIndex >= 0 ? weekdays.en[ptIndex] : day;
         });
         
