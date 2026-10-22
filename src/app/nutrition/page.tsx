@@ -150,6 +150,9 @@ export default function NutritionPage() {
                                         ))
                                     ) : (
                                         <>
+                                            {(meal as any).name && (
+                                                <h4 className="text-sm font-semibold text-bark-700">{(meal as any).name}</h4>
+                                            )}
                                             {(meal as any).ingredients.map((ingredient: string, ingredientIndex: number) => (
                                                 <div key={ingredientIndex} className="flex items-start gap-2 mt-1">
                                                     <span className="text-olive-500 mt-0.5">✓</span>

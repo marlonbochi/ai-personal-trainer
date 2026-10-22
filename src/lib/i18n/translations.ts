@@ -45,6 +45,7 @@ const baseTranslations = {
     'nav.home': 'Meus Treinos',
     'nav.generateWorkout': 'Novo Treino',
 	'nav.generateNutrition': 'Novo Plano Alimentar',
+    'nav.about': 'Sobre',
     
     // PWA
     'pwa.installTitle': 'Instalar Aplicativo',

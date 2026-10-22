@@ -111,9 +111,10 @@ Security is a project requirement: the rules live in [`.specify/memory/constitut
 npm test                  # unit tests (vitest, files in tests/)
 npm run build
 npm run test:integration  # starts the production build and checks origin validation + routes
+npm run test:e2e          # Playwright in a real browser (e2e/): UI flows, form contracts, CSP, offline
 ```
 
-The same steps run in CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) on every push to `main` and every pull request. New features are specified in [`specs/`](specs/) following Spec Kit.
+For `test:e2e` locally, install the browser once with `npx playwright install chromium`. The same steps run in CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) on every push to `main` and every pull request. New features are specified in [`specs/`](specs/) following Spec Kit.
 
 ## Project structure
 
