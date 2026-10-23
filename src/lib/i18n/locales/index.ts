@@ -23,7 +23,11 @@ export const aboutTranslations = {
 export type NutritionTranslationKey = keyof typeof enNutrition | 
   `goals.${keyof typeof enNutrition.goals}` |
   `cuisines.${keyof typeof enNutrition.cuisines}` |
-  `restrictions.${keyof typeof enNutrition.restrictions}`;
+  `restrictions.${keyof typeof enNutrition.restrictions}` |
+  `mealNames.${keyof typeof enNutrition.mealNames}` |
+  `macros.${keyof typeof enNutrition.macros}` |
+  `macroAbbr.${keyof typeof enNutrition.macroAbbr}` |
+  `dayAbbr.${keyof typeof enNutrition.dayAbbr}`;
 
 export type AboutTranslationKey = keyof typeof enAbout;
 

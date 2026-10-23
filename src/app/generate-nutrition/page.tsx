@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { TranslationKey } from '@/lib/i18n/translations';
 import { fetchWithValidation } from '@/lib/api';
 import { useTranslation } from '@/lib/i18n/TranslationContext';
+import { serializePlan } from '@/lib/storedPlan';
 
 type DietGoal = 'weight_loss' | 'muscle_gain' | 'maintenance' | 'endurance';
 
@@ -79,7 +80,7 @@ export default function GenerateNutritionPage() {
             });
 
             if (data) {
-                localStorage.setItem('generatedNutrition', btoa(JSON.stringify(data)));
+                localStorage.setItem('generatedNutrition', serializePlan(data));
                 router.push('/nutrition');
             }
         } catch (error) {

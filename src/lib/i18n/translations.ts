@@ -82,7 +82,11 @@ type NutritionBaseKey = keyof typeof nutritionTranslations.en;
 type NutritionNestedKey = 
   | `goals.${keyof typeof nutritionTranslations.en.goals}`
   | `cuisines.${keyof typeof nutritionTranslations.en.cuisines}`
-  | `restrictions.${keyof typeof nutritionTranslations.en.restrictions}`;
+  | `restrictions.${keyof typeof nutritionTranslations.en.restrictions}`
+  | `mealNames.${keyof typeof nutritionTranslations.en.mealNames}`
+  | `macros.${keyof typeof nutritionTranslations.en.macros}`
+  | `macroAbbr.${keyof typeof nutritionTranslations.en.macroAbbr}`
+  | `dayAbbr.${keyof typeof nutritionTranslations.en.dayAbbr}`;
 type NutritionKey = NutritionBaseKey | NutritionNestedKey;
 
 // Workout translation keys
