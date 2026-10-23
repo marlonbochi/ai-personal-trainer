@@ -24,6 +24,36 @@ const nutritionTranslations = {
   additionalNotesPlaceholder: 'Preferências alimentares, alergias ou requisitos especiais...',
   meals: 'Refeições',
   howToMake: 'Como fazer',
+  mealNames: {
+    breakfast: 'Café da manhã',
+    morningSnack: 'Lanche da manhã',
+    lunch: 'Almoço',
+    afternoonSnack: 'Lanche da tarde',
+    dinner: 'Jantar',
+    supper: 'Ceia',
+    snacks: 'Lanches',
+    preWorkout: 'Pré-treino',
+    postWorkout: 'Pós-treino'
+  },
+  macros: {
+    protein: 'Proteína',
+    carbs: 'Carboidratos',
+    fat: 'Gorduras'
+  },
+  macroAbbr: {
+    protein: 'P',
+    carbs: 'C',
+    fat: 'G'
+  },
+  dayAbbr: {
+    monday: 'Seg',
+    tuesday: 'Ter',
+    wednesday: 'Qua',
+    thursday: 'Qui',
+    friday: 'Sex',
+    saturday: 'Sáb',
+    sunday: 'Dom'
+  },
   goals: {
     weight_loss: 'Perda de Peso',
     muscle_gain: 'Ganho de Massa Muscular',

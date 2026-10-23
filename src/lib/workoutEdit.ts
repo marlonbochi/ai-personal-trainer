@@ -1,3 +1,5 @@
+import { parseStoredPlan } from './storedPlan';
+
 export interface Exercise {
   name: string;
   description?: string;
@@ -17,28 +19,8 @@ export type WorkoutPlan = Record<string, unknown>;
 const META_KEY = '_meta';
 const META_VERSION = 1;
 
-function decodeBase64Utf8(value: string): string {
-  const binary = atob(value);
-  try {
-    return decodeURIComponent(escape(binary));
-  } catch {
-    return binary;
-  }
-}
-
 export function parseStoredWorkout(stored: string | null): WorkoutPlan | null {
-  if (!stored) return null;
-  // Plain JSON is the current format; base64 is the legacy one.
-  const attempts = [() => stored, () => decodeBase64Utf8(stored)];
-  for (const decode of attempts) {
-    try {
-      const parsed = JSON.parse(decode());
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
-    } catch {
-      // try next format
-    }
-  }
-  return null;
+  return parseStoredPlan(stored);
 }
 
 export function serializeWorkout(plan: WorkoutPlan): string {

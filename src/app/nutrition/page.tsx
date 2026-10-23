@@ -6,48 +6,58 @@ import { useTranslation } from '@/lib/i18n/TranslationContext';
 import { Pencil } from 'lucide-react';
 import WeekPlan from '@/models/nutrition';
 import Link from 'next/link';
+import { mealId, weekdayId } from '@/lib/nutritionLabels';
+import { parseStoredPlan } from '@/lib/storedPlan';
 
-const DAY_ABBR: Record<string, Record<string, string>> = {
-    pt: { monday: 'Seg', tuesday: 'Ter', wednesday: 'Qua', thursday: 'Qui', friday: 'Sex', saturday: 'Sáb', sunday: 'Dom' },
-    en: { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' },
-};
+type Macros = { calories: number; protein: number; carbs: number; fat: number };
+
+function MacroLine({ nutrition, className }: { nutrition: Macros; className: string }) {
+    const { t } = useTranslation();
+    return (
+        <div data-testid="macros" className={`flex gap-4 text-xs text-bark-400 border-t border-warm-border pt-2 ${className}`}>
+            <span className="text-olive-600 font-medium">{nutrition.calories} kcal</span>
+            {(['protein', 'carbs', 'fat'] as const).map(macro => (
+                <span key={macro}>
+                    <abbr title={t(`nutrition.macros.${macro}`)} className="no-underline">{t(`nutrition.macroAbbr.${macro}`)}</abbr>: {nutrition[macro]}g
+                </span>
+            ))}
+        </div>
+    );
+}
 
 export default function NutritionPage() {
     const router = useRouter();
-    const { t, language } = useTranslation();
+    const { t } = useTranslation();
     const [plan, setPlan] = useState<WeekPlan | null>(null);
     const [isMounted, setIsMounted] = useState(false);
     const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
     useEffect(() => {
         setIsMounted(true);
-        const storedPlan = localStorage.getItem('generatedNutrition');
-        if (storedPlan) {
-            const parsed = JSON.parse(atob(storedPlan));
-            setPlan(parsed);
+        const parsed = parseStoredPlan(localStorage.getItem('generatedNutrition'));
+        // Anything without a days object is treated as no plan.
+        if (parsed && parsed.days && typeof parsed.days === 'object') {
+            setPlan(parsed as unknown as WeekPlan);
             const firstDay = Object.keys(parsed.days)[0];
             if (firstDay) setSelectedDay(firstDay);
         }
     }, []);
 
+    // Keys are whatever the model returned ('Segunda-feira', 'Monday', 'Breakfast', 'almoço'...);
+    // known ones are shown in the UI language, unknown ones as written.
     const getDayAbbr = (day: string): string => {
-        const abbrs = DAY_ABBR[language] || DAY_ABBR['en'];
-        return abbrs[day.toLowerCase()] || day.slice(0, 3);
+        const id = weekdayId(day);
+        return id ? t(`nutrition.dayAbbr.${id}`) : day.slice(0, 3);
     };
 
     const getWeekdayName = (day: string): string => {
-        const weekdays: Record<string, Record<string, string>> = {
-            pt: {
-                'monday': 'Segunda-feira', 'tuesday': 'Terça-feira', 'wednesday': 'Quarta-feira',
-                'thursday': 'Quinta-feira', 'friday': 'Sexta-feira', 'saturday': 'Sábado', 'sunday': 'Domingo',
-            },
-            en: {
-                'monday': 'Monday', 'tuesday': 'Tuesday', 'wednesday': 'Wednesday',
-                'thursday': 'Thursday', 'friday': 'Friday', 'saturday': 'Saturday', 'sunday': 'Sunday',
-            }
-        };
-        const langMap = weekdays[language] || weekdays['en'];
-        return langMap[day.toLowerCase()] || day;
+        const id = weekdayId(day);
+        return id ? t(`workout.daysOfWeek.${id}`) : day;
+    };
+
+    const getMealName = (meal: string): string => {
+        const id = mealId(meal);
+        return id ? t(`nutrition.mealNames.${id}`) : meal;
     };
 
     if (!isMounted) {
@@ -117,7 +127,7 @@ export default function NutritionPage() {
                     <div>
                         {/* Day Header Card */}
                         <div className="bg-terra-500 rounded-t-2xl px-5 py-3">
-                            <h2 className="text-lg font-bold text-white capitalize">
+                            <h2 className="text-lg font-bold text-white">
                                 {getWeekdayName(currentDayData[0])}
                             </h2>
                         </div>
@@ -126,7 +136,7 @@ export default function NutritionPage() {
                         <div className="bg-white rounded-b-2xl border border-warm-border border-t-0 divide-y divide-warm-border">
                             {Object.entries(currentDayData[1]).map(([mealName, meal], index) => (
                                 <div key={index} className="p-4">
-                                    <h3 className="font-bold text-bark-800 text-lg mb-2">{mealName}</h3>
+                                    <h3 className="font-bold text-bark-800 text-lg mb-2">{getMealName(mealName)}</h3>
                                     
                                     {Array.isArray(meal) ? (
                                         (meal as any[]).map((subMeal: any, subIndex: number) => (
@@ -140,12 +150,7 @@ export default function NutritionPage() {
                                                 ))}
                                                 <p className="text-sm text-terra-600 font-medium mt-2">{t('nutrition.howToMake')}</p>
                                                 <p className="text-sm text-bark-500 mt-0.5">{subMeal.instructions}</p>
-                                                <div className="flex gap-4 mt-2 text-xs text-bark-400 border-t border-warm-border pt-2">
-                                                    <span className="text-olive-600 font-medium">{subMeal.nutrition.calories} kcal</span>
-                                                    <span>P: {subMeal.nutrition.protein}g</span>
-                                                    <span>C: {subMeal.nutrition.carbs}g</span>
-                                                    <span>F: {subMeal.nutrition.fat}g</span>
-                                                </div>
+                                                <MacroLine nutrition={subMeal.nutrition} className="mt-2" />
                                             </div>
                                         ))
                                     ) : (
@@ -161,12 +166,7 @@ export default function NutritionPage() {
                                             ))}
                                             <p className="text-sm text-terra-600 font-medium mt-3">{t('nutrition.howToMake')}</p>
                                             <p className="text-sm text-bark-500 mt-0.5">{(meal as any).instructions}</p>
-                                            <div className="flex gap-4 mt-3 text-xs text-bark-400 border-t border-warm-border pt-2">
-                                                <span className="text-olive-600 font-medium">{(meal as any).nutrition.calories} kcal</span>
-                                                <span>P: {(meal as any).nutrition.protein}g</span>
-                                                <span>C: {(meal as any).nutrition.carbs}g</span>
-                                                <span>F: {(meal as any).nutrition.fat}g</span>
-                                            </div>
+                                            <MacroLine nutrition={(meal as any).nutrition} className="mt-3" />
                                         </>
                                     )}
                                 </div>

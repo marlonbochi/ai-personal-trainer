@@ -43,7 +43,37 @@ const nutritionTranslations = {
     lactose_free: 'Lactose Free',
     halal: 'Halal'
   },
-  howToMake: 'How to make'
+  howToMake: 'How to make',
+  mealNames: {
+    breakfast: 'Breakfast',
+    morningSnack: 'Morning snack',
+    lunch: 'Lunch',
+    afternoonSnack: 'Afternoon snack',
+    dinner: 'Dinner',
+    supper: 'Supper',
+    snacks: 'Snacks',
+    preWorkout: 'Pre-workout',
+    postWorkout: 'Post-workout'
+  },
+  macros: {
+    protein: 'Protein',
+    carbs: 'Carbs',
+    fat: 'Fat'
+  },
+  macroAbbr: {
+    protein: 'P',
+    carbs: 'C',
+    fat: 'F'
+  },
+  dayAbbr: {
+    monday: 'Mon',
+    tuesday: 'Tue',
+    wednesday: 'Wed',
+    thursday: 'Thu',
+    friday: 'Fri',
+    saturday: 'Sat',
+    sunday: 'Sun'
+  }
 };
 
 export default nutritionTranslations;
