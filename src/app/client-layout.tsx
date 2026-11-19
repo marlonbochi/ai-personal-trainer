@@ -7,6 +7,7 @@ import ProvidersWrapper from "./ProvidersWrapper";
 import FontStyles from "./FontStyles";
 import PWAInstallWrapper from "@/components/PWAInstallWrapper";
 import Navbar from "@/components/Navbar";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 type ClientLayoutProps = {
   children: ReactNode;
@@ -58,6 +59,8 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
             <PWAInstallWrapper />
           </ProvidersWrapper>
         </Providers>
+        {/* Web vitals for Vercel Speed Insights; script and endpoint are same-origin (/_vercel/...) on Vercel. */}
+        <SpeedInsights />
       </body>
     </html>
   );

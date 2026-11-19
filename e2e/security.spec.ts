@@ -32,3 +32,16 @@ test.describe('with the service worker running, as in production', () => {
     expect(problems).toEqual([]);
   });
 });
+
+test('the Speed Insights script loads and runs under the production CSP', async ({ page }) => {
+  // Only Vercel serves /_vercel/*; stand in for it so the test can see the script execute.
+  await page.route('**/_vercel/speed-insights/script.js', route =>
+    route.fulfill({ contentType: 'text/javascript', body: 'window.__speedInsightsRan = true;' }));
+  const violations: string[] = [];
+  page.on('console', msg => {
+    if (/Content Security Policy|violates the following/i.test(msg.text())) violations.push(msg.text());
+  });
+  await page.goto('/about');
+  await expect.poll(() => page.evaluate(() => (window as any).__speedInsightsRan === true)).toBe(true);
+  expect(violations).toEqual([]);
+});
