@@ -1,4 +1,4 @@
-# 🏋️ AI Personal Trainer
+# 🏋️ AI FitCoach
 
 An AI-powered app that generates a personalized weekly **workout routine** and **meal plan** from a short questionnaire. Fill in your profile and goals, and the app asks the [Gemini API](https://ai.google.dev/) to put together a plan tailored to you.
 

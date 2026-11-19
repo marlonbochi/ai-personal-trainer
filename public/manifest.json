@@ -1,7 +1,7 @@
 {
-  "name": "AI Personal Trainer",
-  "short_name": "AI Trainer",
-  "description": "Your personal AI workout assistant",
+  "name": "AI FitCoach",
+  "short_name": "AI FitCoach",
+  "description": "Your AI fitness coach for workouts and nutrition",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
