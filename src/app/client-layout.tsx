@@ -7,6 +7,7 @@ import ProvidersWrapper from "./ProvidersWrapper";
 import FontStyles from "./FontStyles";
 import PWAInstallWrapper from "@/components/PWAInstallWrapper";
 import Navbar from "@/components/Navbar";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 type ClientLayoutProps = {
   children: ReactNode;
@@ -19,10 +20,9 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="application-name" content="AI Personal Trainer" />
+        <meta name="application-name" content="AI FitCoach" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="AI Trainer" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-config" content="/icons/browserconfig.xml" />
@@ -59,6 +59,8 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
             <PWAInstallWrapper />
           </ProvidersWrapper>
         </Providers>
+        {/* Web vitals for Vercel Speed Insights; script and endpoint are same-origin (/_vercel/...) on Vercel. */}
+        <SpeedInsights />
       </body>
     </html>
   );

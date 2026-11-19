@@ -3,28 +3,28 @@ import "./globals.css";
 import ClientLayout from "./client-layout";
 
 export const metadata: Metadata = {
-  title: "AI Personal Trainer",
-  description: "Your personal AI workout assistant",
+  title: "AI FitCoach",
+  description: "Your AI fitness coach for workouts and nutrition",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'AI Personal Trainer',
+    title: 'AI FitCoach',
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
     type: 'website',
-    siteName: 'AI Personal Trainer',
-    title: 'AI Personal Trainer',
-    description: 'Your personal AI workout assistant',
+    siteName: 'AI FitCoach',
+    title: 'AI FitCoach',
+    description: 'Your AI fitness coach for workouts and nutrition',
   },
   twitter: {
     card: 'summary',
-    title: 'AI Personal Trainer',
-    description: 'Your personal AI workout assistant',
+    title: 'AI FitCoach',
+    description: 'Your AI fitness coach for workouts and nutrition',
   },
 };
 

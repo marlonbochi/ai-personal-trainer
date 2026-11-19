@@ -17,8 +17,8 @@ function flattenTranslations(translations: any, prefix = ''): Record<string, str
 const baseTranslations = {
   en: {
     // App
-    'app.name': 'AI Trainer',
-	'app.description': 'Welcome to AI Trainer, a personal trainer that uses AI to help you achieve your health goals.',
+    'app.name': 'AI FitCoach',
+	'app.description': 'Welcome to AI FitCoach, a personal trainer that uses AI to help you achieve your health goals.',
     
     // Navigation
     'nav.home': 'My Workouts',
@@ -39,8 +39,8 @@ const baseTranslations = {
   },
   pt: {
 	// App
-    'app.name': 'AI Trainer',
-    'app.description': 'Bem vindo ao AI Trainer, um treinador personalizado que usa IA para ajudar você a alcançar seus objetivos para uma vida saudável.',    
+    'app.name': 'AI FitCoach',
+    'app.description': 'Bem vindo ao AI FitCoach, um treinador personalizado que usa IA para ajudar você a alcançar seus objetivos para uma vida saudável.',    
     // Navigation
     'nav.home': 'Meus Treinos',
     'nav.generateWorkout': 'Novo Treino',
