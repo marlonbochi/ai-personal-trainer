@@ -1,8 +1,8 @@
 // src/lib/i18n/locales/en/about.ts
 export const aboutTranslations = {
-  title: 'About AI Trainer',
+  title: 'About AI FitCoach',
   aboutApp: 'About This App',
-  appDescription: 'AI Trainer is an innovative application designed to help you achieve your fitness goals through personalized workout and nutrition plans. Our AI-powered platform creates customized fitness routines and meal plans tailored to your specific needs, preferences, and goals. Since I use the free plans of the Gemini API, the application’s performance may be slow and sometimes throw errors due to reaching the daily usage quota.',
+  appDescription: 'AI FitCoach is an innovative application designed to help you achieve your fitness goals through personalized workout and nutrition plans. Our AI-powered platform creates customized fitness routines and meal plans tailored to your specific needs, preferences, and goals. Since I use the free plans of the Gemini API, the application’s performance may be slow and sometimes throw errors due to reaching the daily usage quota.',
   aboutMe: 'About Me',
   myDescription: 'Hello! My name is Marlon Bochi. I\'m a developer and enthusiast who created this app to help combine technology and health. My goal is to make fitness accessible and personalized for everyone, using the power of AI to create effective training and nutrition plans.',
   importantNote: 'Important Note',

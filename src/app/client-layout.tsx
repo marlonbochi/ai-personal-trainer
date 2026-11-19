@@ -19,10 +19,9 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta name="application-name" content="AI Personal Trainer" />
+        <meta name="application-name" content="AI FitCoach" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="AI Trainer" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-config" content="/icons/browserconfig.xml" />

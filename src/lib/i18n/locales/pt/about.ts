@@ -1,8 +1,8 @@
 // src/lib/i18n/locales/pt/about.ts
 export const aboutTranslations = {
-  title: 'Sobre o AI Trainer',
+  title: 'Sobre o AI FitCoach',
   aboutApp: 'Sobre Este Aplicativo',
-  appDescription: 'O AI Trainer é um aplicativo projetado para ajudá-lo a atingir seus objetivos de condicionamento físico por meio de planos personalizados de treino e nutrição. Nossa plataforma alimentada por IA cria rotinas de exercícios e planos alimentares personalizados para atender às suas necessidades, preferências e objetivos específicos. Como utilizo planos gratuitos da API do Gemini pode ser que a perfomance do aplicativo seja lenta e as vezes de erros por ter atingido a cota diária de consumo.',
+  appDescription: 'O AI FitCoach é um aplicativo projetado para ajudá-lo a atingir seus objetivos de condicionamento físico por meio de planos personalizados de treino e nutrição. Nossa plataforma alimentada por IA cria rotinas de exercícios e planos alimentares personalizados para atender às suas necessidades, preferências e objetivos específicos. Como utilizo planos gratuitos da API do Gemini pode ser que a perfomance do aplicativo seja lenta e as vezes de erros por ter atingido a cota diária de consumo.',
   aboutMe: 'Sobre Mim',
   myDescription: 'Olá! Me chamo Marlon Bochi, sou um desenvolvedor e entusiasta que criou este aplicativo para ajudar a combinar tecnologia e saúde. Meu objetivo é tornar o condicionamento físico acessível e personalizado para todos, usando o poder da IA para criar planos eficazes de treino e nutrição.',
   importantNote: 'Nota Importante',
